@@ -34,6 +34,51 @@ function parseEmails(value) {
     .filter(Boolean);
 }
 
+// Secure backend mapping for Loan Officer / Team → recipient list.
+// Frontend may display recipients, but backend enforces the final routing.
+const emailRoutes = {
+  'Steven Zin': ['Loanprocessing@zmgnow.com', 'zinteam@zmgnow.com'],
+  'Teresa Clark': ['Loanprocessing@zmgnow.com', 'teamclark@tdcmtg.com'],
+  'Cari LaMere': ['Loanprocessing@zmgnow.com', 'lamereteam@zmgnow.com'],
+  'Chasten Gerhart': ['Loanprocessing@zmgnow.com', 'chastenteam@zmgnow.com']
+};
+
+function htmlSection(title, data) {
+  const rows = Object.entries(data || {})
+    .filter(([, value]) => {
+      if (Array.isArray(value)) return value.length > 0;
+      return safe(value) !== '';
+    })
+    .map(([key, value]) => {
+      const label = key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/_/g, ' ')
+        .replace(/^./, (s) => s.toUpperCase());
+
+      return `
+        <tr>
+          <td style="padding:8px 12px;border:1px solid #d9e2ec;background:#f8fafc;font-weight:600;width:260px;vertical-align:top;">${label}</td>
+          <td style="padding:8px 12px;border:1px solid #d9e2ec;vertical-align:top;">${safe(value)}</td>
+        </tr>
+      `;
+    })
+    .join('');
+
+  return `
+    <div style="margin:0 0 24px 0;">
+      <h2 style="margin:0 0 12px 0;font-size:18px;color:#0e6b72;font-family:Arial,sans-serif;">${title}</h2>
+      <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px;color:#17212b;">
+        ${rows || `
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #d9e2ec;background:#f8fafc;font-weight:600;width:260px;">Status</td>
+            <td style="padding:8px 12px;border:1px solid #d9e2ec;">No data provided.</td>
+          </tr>
+        `}
+      </table>
+    </div>
+  `;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -45,32 +90,48 @@ export default async function handler(req, res) {
     const refinance = body.refinance || {};
     const purchase = body.purchase || {};
 
+    const loanTeam = safe(general.loanTeam);
     const submissionType = safe(general.submissionType);
     const borrowerName = safe(general.borrowerName) || 'Unknown Borrower';
-    const recipients = parseEmails(general.emailSubmissionTo);
+    const propertyAddress = safe(general.propertyAddress);
+    const submittedBy = safe(general.submittedBy);
+
+    // Secure routing: use backend mapping, ignore any attempt to override recipients.
+    const routeRecipients = emailRoutes[loanTeam] || [];
+    const manualEmails = parseEmails(general.emailRecipients); // frontend may send preview, but mapping wins
+    const recipients = routeRecipients.length ? routeRecipients : manualEmails;
+
+    if (!loanTeam) {
+      return res.status(400).json({ error: 'Loan Officer / Team is required.' });
+    }
+
+    if (!emailRoutes[loanTeam]) {
+      return res.status(400).json({ error: 'Invalid Loan Officer / Team selection.' });
+    }
 
     if (!submissionType) {
       return res.status(400).json({ error: 'Submission Type is required.' });
     }
 
-    if (!safe(general.loanOfficer)) {
-      return res.status(400).json({ error: 'Loan Officer is required.' });
-    }
-
-    if (!safe(general.propertyAddress)) {
+    if (!propertyAddress) {
       return res.status(400).json({ error: 'Property Address is required.' });
     }
 
-    if (!safe(general.submittedBy)) {
+    if (!submittedBy) {
       return res.status(400).json({ error: 'Submitted By is required.' });
     }
 
     if (!recipients.length) {
-      return res.status(400).json({ error: 'At least one Email Submission To address is required.' });
+      return res.status(400).json({
+        error: 'No email recipients could be determined from the selected team.'
+      });
     }
 
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      return res.status(500).json({ error: 'SMTP environment variables are missing in Vercel.' });
+      // Vercel best practice: require environment variables for SMTP credentials. [web:129]
+      return res.status(500).json({
+        error: 'SMTP environment variables (SMTP_USER / SMTP_PASS) are missing in Vercel.'
+      });
     }
 
     const transporter = nodemailer.createTransport({
@@ -81,12 +142,21 @@ export default async function handler(req, res) {
       }
     });
 
-    const subject = `ZMG Loan Submission - ${submissionType} - ${borrowerName}`;
+    const subject = `ZMG Loan Submission - ${submissionType} - ${loanTeam} - ${borrowerName}`;
 
+    // Grouped text summary
     const emailText = [
       'ZMG Loan Submission Portal',
       '',
-      sectionBlock('General Information', general),
+      sectionBlock('General Information', {
+        loanOfficerTeam: loanTeam,
+        submissionType,
+        borrowerName,
+        propertyAddress,
+        loanNumber: safe(general.loanNumber),
+        submittedBy,
+        emailRecipients: recipients
+      }),
       submissionType === 'Refinance'
         ? sectionBlock('Refinance Submission Checklist', refinance)
         : '',
@@ -95,48 +165,23 @@ export default async function handler(req, res) {
         : ''
     ].join('\n');
 
-    const htmlSection = (title, data) => {
-      const rows = Object.entries(data || {})
-        .filter(([, value]) => {
-          if (Array.isArray(value)) return value.length > 0;
-          return safe(value) !== '';
-        })
-        .map(([key, value]) => {
-          const label = key
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/_/g, ' ')
-            .replace(/^./, (s) => s.toUpperCase());
-
-          return `
-            <tr>
-              <td style="padding:8px 12px;border:1px solid #d9e2ec;background:#f8fafc;font-weight:600;width:260px;vertical-align:top;">${label}</td>
-              <td style="padding:8px 12px;border:1px solid #d9e2ec;vertical-align:top;">${safe(value)}</td>
-            </tr>
-          `;
-        })
-        .join('');
-
-      return `
-        <div style="margin:0 0 24px 0;">
-          <h2 style="margin:0 0 12px 0;font-size:18px;color:#0e6b72;">${title}</h2>
-          <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px;color:#17212b;">
-            ${rows || `
-              <tr>
-                <td style="padding:8px 12px;border:1px solid #d9e2ec;background:#f8fafc;font-weight:600;width:260px;">Status</td>
-                <td style="padding:8px 12px;border:1px solid #d9e2ec;">No data provided.</td>
-              </tr>
-            `}
-          </table>
-        </div>
-      `;
+    // Grouped HTML summary
+    const htmlGeneral = {
+      loanOfficerTeam: loanTeam,
+      submissionType,
+      borrowerName,
+      propertyAddress,
+      loanNumber: safe(general.loanNumber),
+      submittedBy,
+      emailRecipients: recipients
     };
 
     const emailHtml = `
-      <div style="font-family:Arial,sans-serif;background:#f6f8fb;padding:24px;color:#17212b;">
+      <div style="font-family:Arial,sans-serif;background:#f4f7fb;padding:24px;color:#17212b;">
         <div style="max-width:900px;margin:0 auto;background:#ffffff;border:1px solid #d9e2ec;border-radius:16px;padding:24px;">
-          <h1 style="margin:0 0 8px 0;font-size:28px;color:#17212b;">ZMG Loan Submission Portal</h1>
-          <p style="margin:0 0 24px 0;color:#667085;">Complete submission received from the web portal.</p>
-          ${htmlSection('General Information', general)}
+          <h1 style="margin:0 0 8px 0;font-size:26px;color:#17212b;">ZMG Loan Submission Portal</h1>
+          <p style="margin:0 0 24px 0;color:#667085;">Completed submission received from the web portal. Review details by section below.</p>
+          ${htmlSection('General Information', htmlGeneral)}
           ${submissionType === 'Refinance' ? htmlSection('Refinance Submission Checklist', refinance) : ''}
           ${submissionType === 'Purchase' ? htmlSection('Purchase Submission Checklist', purchase) : ''}
         </div>
