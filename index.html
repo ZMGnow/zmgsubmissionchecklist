@@ -40,6 +40,18 @@
       padding:28px;
       margin-bottom:22px;
     }
+    .hero-head{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:16px;
+    }
+    .hero-logo{
+      height:56px;
+      max-width:220px;
+      width:auto;
+      object-fit:contain;
+    }
     .hero h1{
       margin:0 0 8px 0;
       font-size:clamp(28px,4vw,42px);
@@ -239,11 +251,6 @@
       border:1px solid var(--line);
     }
     .btn-secondary:hover{background:#f8fafc}
-    .btn-danger{
-      background:#fff4f2;
-      color:var(--danger);
-      border:1px solid #f3c7c2;
-    }
     .status{
       margin-top:12px;
       font-size:14px;
@@ -262,6 +269,18 @@
       padding-top:16px;
       margin-top:16px;
     }
+    .route-preview{
+      background:#f8fbfc;
+      border:1px solid #d8e9eb;
+      border-radius:12px;
+      padding:12px 14px;
+      font-size:14px;
+    }
+    .route-preview strong{
+      display:block;
+      margin-bottom:6px;
+      color:#21424a;
+    }
     @media (max-width: 980px){
       .layout{grid-template-columns:1fr}
       .sticky{position:static}
@@ -272,14 +291,20 @@
       .summary-row{grid-template-columns:1fr}
       .container{padding:16px}
       .hero,.card{padding:18px}
+      .hero-logo{height:48px}
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header class="hero">
-      <h1>ZMG Loan Submission Portal</h1>
-      <p>Complete the appropriate submission checklist before sending the file to the team.</p>
+      <div class="hero-head">
+        <img src="/logo.png" alt="ZMG Logo" class="hero-logo" />
+        <div>
+          <h1>ZMG Loan Submission Portal</h1>
+          <p>Complete the appropriate submission checklist before sending the file to the team.</p>
+        </div>
+      </div>
       <div class="progress" id="progressPills">
         <div class="pill active" data-step="1">1. Complete Form</div>
         <div class="pill" data-step="2">2. Review Submission</div>
@@ -293,13 +318,25 @@
           <section class="card">
             <h2 class="section-title">General Information</h2>
             <p class="section-subtitle">These fields are required for every file before the checklist section appears.</p>
+
             <div class="grid">
+              <div class="field">
+                <label for="loanTeam">Loan Officer / Team <span class="req">*</span></label>
+                <select id="loanTeam" name="loanTeam" required>
+                  <option value="">Select team</option>
+                  <option>Steven Zin</option>
+                  <option>Teresa Clark</option>
+                  <option>Cari LaMere</option>
+                  <option>Chasten Gerhart</option>
+                </select>
+              </div>
+
               <div class="field">
                 <label for="submissionType">Submission Type <span class="req">*</span></label>
                 <select id="submissionType" name="submissionType" required>
                   <option value="">Select submission type</option>
-                  <option value="Refinance">Refinance</option>
                   <option value="Purchase">Purchase</option>
+                  <option value="Refinance">Refinance</option>
                 </select>
               </div>
 
@@ -330,8 +367,15 @@
 
               <div class="field full">
                 <label for="emailSubmissionTo">Email Submission To <span class="req">*</span></label>
-                <input id="emailSubmissionTo" name="emailSubmissionTo" type="text" required placeholder="Enter one or more email addresses separated by commas" />
-                <div class="hint">Example: Loanprocessing@zmgnow.com, zinteam@zmgnow.com</div>
+                <input id="emailSubmissionTo" name="emailSubmissionTo" type="text" required placeholder="This will auto-fill based on selected team" readonly />
+                <div class="hint">Recipients are assigned automatically from the selected Loan Officer / Team.</div>
+              </div>
+
+              <div class="field full">
+                <div class="route-preview" id="routePreview">
+                  <strong>Email Recipients</strong>
+                  Select a Loan Officer / Team to display the automatic routing.
+                </div>
               </div>
             </div>
           </section>
@@ -1032,7 +1076,7 @@
         <div class="card sidebar-card">
           <h3>Submission Notes</h3>
           <p>Only the selected checklist appears. Required fields change automatically based on visible questions and conditional responses.</p>
-          <p>Use <strong>Review Submission</strong> before sending the file. The final email will be grouped by section and include all visible answers.</p>
+          <p>Recipients are assigned automatically based on the selected Loan Officer / Team and also validated again in the backend.</p>
           <div class="footer-actions">
             <div class="btn-row">
               <button type="button" class="btn-primary" id="reviewBtnSide">Review Submission</button>
@@ -1054,6 +1098,16 @@
     const submissionType = $('submissionType');
     const refinanceSection = $('refinanceSection');
     const purchaseSection = $('purchaseSection');
+    const loanTeam = $('loanTeam');
+    const emailSubmissionTo = $('emailSubmissionTo');
+    const routePreview = $('routePreview');
+
+    const emailRoutes = {
+      'Steven Zin': ['Loanprocessing@zmgnow.com', 'zinteam@zmgnow.com'],
+      'Teresa Clark': ['Loanprocessing@zmgnow.com', 'teamclark@tdcmtg.com'],
+      'Cari LaMere': ['Loanprocessing@zmgnow.com', 'lamereteam@zmgnow.com'],
+      'Chasten Gerhart': ['Loanprocessing@zmgnow.com', 'chastenteam@zmgnow.com']
+    };
 
     function setStep(step){
       document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -1065,12 +1119,6 @@
 
     function isVisible(el){
       return !!(el && el.offsetParent !== null && !el.classList.contains('hidden'));
-    }
-
-    function emailListValid(value){
-      const emails = value.split(',').map(v=>v.trim()).filter(Boolean);
-      if (!emails.length) return false;
-      return emails.every(e => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(e));
     }
 
     function formatCurrencyValue(v){
@@ -1113,6 +1161,15 @@
       return [...document.querySelectorAll('input[name="cashSource"]:checked')].map(el=>el.value);
     }
 
+    function updateRoutePreview(){
+      const selectedTeam = loanTeam.value;
+      const recipients = emailRoutes[selectedTeam] || [];
+      emailSubmissionTo.value = recipients.join(', ');
+      routePreview.innerHTML = recipients.length
+        ? `<strong>Email Recipients</strong>${recipients.join('<br>')}`
+        : `<strong>Email Recipients</strong>Select a Loan Officer / Team to display the automatic routing.`;
+    }
+
     function handleSections(){
       const type = submissionType.value;
       type === 'Refinance' ? show(refinanceSection) : hide(refinanceSection);
@@ -1120,7 +1177,6 @@
     }
 
     function handleConditionalLogic(){
-      // Refinance
       $('refiMiType').value === 'Monthly' || $('refiMiType').value === 'Single Premium'
         ? show($('refiMiAmountWrap')) : hide($('refiMiAmountWrap'));
 
@@ -1142,7 +1198,6 @@
       $('refiPricingReason').value === 'Benefit'
         ? show($('refiBenefitWrap')) : hide($('refiBenefitWrap'));
 
-      // Purchase
       $('purchaseMiType').value === 'Monthly MI' || $('purchaseMiType').value === 'Single Premium MI'
         ? show($('purchaseMiAmountWrap')) : hide($('purchaseMiAmountWrap'));
 
@@ -1181,15 +1236,20 @@
     }
 
     function buildData(){
+      const selectedTeam = fieldValue('loanTeam');
+      const recipients = emailRoutes[selectedTeam] || [];
+
       const data = {
         general: {
+          loanTeam: selectedTeam,
           submissionType: fieldValue('submissionType'),
           loanOfficer: fieldValue('loanOfficer'),
           borrowerName: fieldValue('borrowerName'),
           propertyAddress: fieldValue('propertyAddress'),
           loanNumber: fieldValue('loanNumber'),
           submittedBy: fieldValue('submittedBy'),
-          emailSubmissionTo: fieldValue('emailSubmissionTo')
+          emailSubmissionTo: fieldValue('emailSubmissionTo'),
+          emailRecipients: recipients.join(', ')
         },
         refinance: {},
         purchase: {}
@@ -1323,7 +1383,16 @@
       let valid = true;
       const type = submissionType.value;
 
-      const baseRequired = ['submissionType','loanOfficer','borrowerName','propertyAddress','submittedBy','emailSubmissionTo'];
+      const baseRequired = [
+        'loanTeam',
+        'submissionType',
+        'loanOfficer',
+        'borrowerName',
+        'propertyAddress',
+        'submittedBy',
+        'emailSubmissionTo'
+      ];
+
       baseRequired.forEach(id=>{
         const el = $(id);
         if (!fieldValue(id)){
@@ -1332,8 +1401,8 @@
         }
       });
 
-      if (fieldValue('emailSubmissionTo') && !emailListValid(fieldValue('emailSubmissionTo'))){
-        addError($('emailSubmissionTo'), 'Enter valid email addresses separated by commas.');
+      if (!emailRoutes[fieldValue('loanTeam')]) {
+        addError($('loanTeam'), 'Select a valid Loan Officer / Team.');
         valid = false;
       }
 
@@ -1353,11 +1422,9 @@
         }
       });
 
-      if (type === 'Purchase'){
-        if (!selectedCashSources().length){
-          $('cashSourceError').classList.remove('hidden');
-          valid = false;
-        }
+      if (type === 'Purchase' && !selectedCashSources().length){
+        $('cashSourceError').classList.remove('hidden');
+        valid = false;
       }
 
       if (!valid){
@@ -1409,6 +1476,8 @@
       setStep(1);
     });
 
+    loanTeam.addEventListener('change', updateRoutePreview);
+
     [
       'refiMiType','refiDebtExcluded','refiPastClientCredit','refiRecast','refiPricedUnder','refiPricingReason',
       'purchaseMiType','purchaseDebtExcluded','dominoClosing','purchaseDisclosure','purchaseRecast',
@@ -1432,6 +1501,7 @@
     attachCurrencyFormatting();
     handleSections();
     handleConditionalLogic();
+    updateRoutePreview();
   </script>
 </body>
 </html>
