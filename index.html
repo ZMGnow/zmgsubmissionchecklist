@@ -1,257 +1,1437 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ZMG Loan Submission Portal</title>
-  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
   <style>
-    :root, [data-theme="light"] {
-      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
-      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
-      --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
-      --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-border: #d4d1ca; --color-divider: #dcd9d5;
-      --color-text: #28251d; --color-muted: #6f6d67; --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-primary-highlight: #cedcd8;
-      --color-success: #437a22; --color-error: #a12c7b; --color-inverse: #f9f8f4;
-      --radius-md: .5rem; --radius-lg: .75rem; --radius-xl: 1rem; --radius-full: 9999px;
-      --shadow-sm: 0 1px 2px rgba(40,37,29,0.06); --shadow-md: 0 8px 20px rgba(40,37,29,0.08);
-      --font: 'Satoshi', Inter, sans-serif;
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --text:#17212b;
+      --muted:#667085;
+      --line:#d9e2ec;
+      --accent:#0e6b72;
+      --accent-2:#0b4f54;
+      --accent-soft:#e7f3f4;
+      --danger:#b42318;
+      --radius:16px;
+      --shadow:0 10px 30px rgba(16,24,40,.08);
     }
-    [data-theme="dark"] {
-      --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d; --color-border: #393836; --color-divider: #262523;
-      --color-text: #cdccca; --color-muted: #9a9895; --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-primary-highlight: #313b3b;
-      --color-success: #6daa45; --color-error: #d163a7; --color-inverse: #171614; --shadow-sm: 0 1px 2px rgba(0,0,0,0.2); --shadow-md: 0 12px 28px rgba(0,0,0,0.35);
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.45;
     }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:var(--font);background:var(--color-bg);color:var(--color-text);font-size:var(--text-base);line-height:1.5}
-    input,select,textarea,button{font:inherit;color:inherit} textarea{min-height:110px;resize:vertical}
-    .page{max-width:1120px;margin:0 auto;padding:1.5rem 1rem 3rem}
-    .topbar{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:2rem}
-    .brand,.card{background:var(--color-surface);border:1px solid rgba(40,37,29,.12);border-radius:var(--radius-xl);box-shadow:var(--shadow-md)}
-    .brand{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem}
-    .brand-mark{width:52px;height:52px;padding:10px;border-radius:14px;color:var(--color-primary);background:var(--color-primary-highlight)}
-    .brand h1{font-size:var(--text-xl);line-height:1.05;letter-spacing:-.03em}
-    .brand p{font-size:var(--text-sm);color:var(--color-muted);margin-top:.2rem}
-    .theme-toggle{min-width:44px;min-height:44px;border-radius:var(--radius-full);border:1px solid rgba(40,37,29,.12);background:var(--color-surface);cursor:pointer}
-    .layout{display:grid;grid-template-columns:300px 1fr;gap:1.5rem}
-    .sidebar,.main{padding:1.25rem}
-    .team-list{display:grid;gap:.75rem;margin-top:1rem}
-    .team-card{padding:1rem;border-radius:var(--radius-lg);background:var(--color-surface-2);border:1px solid rgba(40,37,29,.08)}
-    .team-card strong{display:block;margin-bottom:.35rem}
-    .team-card span{display:block;font-size:var(--text-sm);color:var(--color-muted);overflow-wrap:anywhere}
-    .intro{color:var(--color-muted);margin:.25rem 0 1.25rem}
-    .summary,.status{padding:1rem;border-radius:var(--radius-lg);background:var(--color-surface-2);border:1px dashed var(--color-border);font-size:var(--text-sm)}
-    form{display:grid;gap:1.5rem}
-    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
-    .field,.full{display:grid;gap:.45rem}
+    .container{
+      max-width:1180px;
+      margin:0 auto;
+      padding:24px;
+    }
+    .hero{
+      background:linear-gradient(180deg,#fff,#f7fbfb);
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      margin-bottom:22px;
+    }
+    .hero h1{
+      margin:0 0 8px 0;
+      font-size:clamp(28px,4vw,42px);
+      line-height:1.05;
+      letter-spacing:-0.02em;
+    }
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      max-width:760px;
+      font-size:16px;
+    }
+    .progress{
+      display:flex;
+      gap:12px;
+      margin:18px 0 0 0;
+      flex-wrap:wrap;
+    }
+    .pill{
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:14px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--muted);
+    }
+    .pill.active{
+      background:var(--accent-soft);
+      color:var(--accent-2);
+      border-color:#b6d7da;
+      font-weight:600;
+    }
+    .layout{
+      display:grid;
+      grid-template-columns:1fr 320px;
+      gap:22px;
+      align-items:start;
+    }
+    .stack{display:grid; gap:20px;}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+    .section-title{
+      margin:0 0 6px 0;
+      font-size:22px;
+    }
+    .section-subtitle{
+      margin:0 0 18px 0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
     .full{grid-column:1/-1}
-    label{font-size:var(--text-sm);font-weight:600}
-    input,select,textarea{width:100%;padding:.85rem 1rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2)}
-    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 4px color-mix(in srgb, var(--color-primary) 18%, transparent)}
-    .section{display:grid;gap:1rem;padding-top:1.25rem;border-top:1px solid var(--color-divider)}
+    .field{display:grid; gap:8px}
+    label{
+      font-size:14px;
+      font-weight:700;
+      color:#243341;
+    }
+    .req{color:var(--danger)}
+    input, select, textarea{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      color:var(--text);
+      padding:13px 14px;
+      font:inherit;
+      outline:none;
+      transition:.15s ease;
+    }
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 4px rgba(14,107,114,.12);
+    }
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:-2px;
+    }
+    .group{
+      border:1px dashed #c7d3dd;
+      background:#fbfdff;
+      border-radius:14px;
+      padding:16px;
+    }
+    .group h4{
+      margin:0 0 12px 0;
+      font-size:15px;
+    }
+    .checkbox-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px 18px;
+    }
+    .check{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      font-size:14px;
+      color:#344054;
+    }
+    .check input{
+      width:18px;
+      height:18px;
+      margin-top:1px;
+      padding:0;
+    }
     .hidden{display:none !important}
-    .checkbox-group{display:grid;gap:.6rem}
-    .checkbox-item{display:flex;gap:.65rem;align-items:flex-start;font-size:var(--text-sm)}
-    .checkbox-item input{width:18px;height:18px;margin-top:2px}
-    .actions{display:flex;flex-wrap:wrap;gap:.75rem}
-    .btn{min-height:46px;padding:.85rem 1.15rem;border-radius:.5rem;border:1px solid transparent;cursor:pointer}
-    .btn-primary{background:var(--color-primary);color:var(--color-inverse)}
-    .btn-primary:hover{background:var(--color-primary-hover)}
-    .btn-secondary{background:var(--color-surface-2);border-color:var(--color-border)}
-    .helper{font-size:.85rem;color:var(--color-muted)}
-    @media (max-width: 920px){.layout,.form-grid{grid-template-columns:1fr}}
+    .error{
+      border-color:#f2b8b5 !important;
+      background:#fff8f7;
+    }
+    .error-text{
+      color:var(--danger);
+      font-size:12px;
+      margin-top:-2px;
+    }
+    .summary-box{
+      background:#fcfdfd;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      font-size:14px;
+    }
+    .summary-box h4{
+      margin:0 0 10px 0;
+      font-size:15px;
+    }
+    .summary-section{
+      border-top:1px solid #e7eef4;
+      padding-top:12px;
+      margin-top:12px;
+    }
+    .summary-section:first-child{
+      border-top:none;
+      padding-top:0;
+      margin-top:0;
+    }
+    .summary-row{
+      display:grid;
+      grid-template-columns:220px 1fr;
+      gap:14px;
+      padding:5px 0;
+    }
+    .summary-row strong{
+      color:#344054;
+    }
+    .sticky{
+      position:sticky;
+      top:18px;
+    }
+    .sidebar-card h3{
+      margin:0 0 10px 0;
+      font-size:18px;
+    }
+    .sidebar-card p{
+      margin:0 0 14px 0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .btn-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:8px;
+    }
+    button{
+      border:none;
+      border-radius:12px;
+      padding:13px 16px;
+      font:inherit;
+      font-weight:700;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+    .btn-primary{
+      background:var(--accent);
+      color:#fff;
+    }
+    .btn-primary:hover{background:var(--accent-2)}
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .btn-secondary:hover{background:#f8fafc}
+    .btn-danger{
+      background:#fff4f2;
+      color:var(--danger);
+      border:1px solid #f3c7c2;
+    }
+    .status{
+      margin-top:12px;
+      font-size:14px;
+      color:var(--muted);
+      min-height:20px;
+    }
+    .review-wrap{
+      border-top:1px solid var(--line);
+      margin-top:18px;
+      padding-top:18px;
+    }
+    .footer-actions{
+      position:sticky;
+      bottom:0;
+      background:linear-gradient(180deg,rgba(246,248,251,0),rgba(246,248,251,1) 35%);
+      padding-top:16px;
+      margin-top:16px;
+    }
+    @media (max-width: 980px){
+      .layout{grid-template-columns:1fr}
+      .sticky{position:static}
+    }
+    @media (max-width: 720px){
+      .grid{grid-template-columns:1fr}
+      .checkbox-grid{grid-template-columns:1fr}
+      .summary-row{grid-template-columns:1fr}
+      .container{padding:16px}
+      .hero,.card{padding:18px}
+    }
   </style>
 </head>
 <body>
-<div class="page">
-  <header class="topbar">
-    <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect x="7" y="7" width="50" height="50" rx="14" stroke="currentColor" stroke-width="4"/>
-        <path d="M18 20H46L20 44H46" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div>
-        <h1>ZMG Loan Submission Portal</h1>
-        <p>Loan officer routing with refinance and purchase checklists.</p>
+  <div class="container">
+    <header class="hero">
+      <h1>ZMG Loan Submission Portal</h1>
+      <p>Complete the appropriate submission checklist before sending the file to the team.</p>
+      <div class="progress" id="progressPills">
+        <div class="pill active" data-step="1">1. Complete Form</div>
+        <div class="pill" data-step="2">2. Review Submission</div>
+        <div class="pill" data-step="3">3. Submit File</div>
       </div>
-    </div>
-    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch theme">☾</button>
-  </header>
+    </header>
 
-  <div class="layout">
-    <aside class="card sidebar">
-      <h2>Routing Directory</h2>
-      <div class="team-list" id="teamList"></div>
-    </aside>
+    <div class="layout">
+      <div class="stack">
+        <form id="submissionForm" novalidate>
+          <section class="card">
+            <h2 class="section-title">General Information</h2>
+            <p class="section-subtitle">These fields are required for every file before the checklist section appears.</p>
+            <div class="grid">
+              <div class="field">
+                <label for="submissionType">Submission Type <span class="req">*</span></label>
+                <select id="submissionType" name="submissionType" required>
+                  <option value="">Select submission type</option>
+                  <option value="Refinance">Refinance</option>
+                  <option value="Purchase">Purchase</option>
+                </select>
+              </div>
 
-    <main class="card main">
-      <h2>Submission Form</h2>
-      <p class="intro">Choose a loan officer and loan type, then complete the appropriate checklist and submit.</p>
-      <form id="submissionForm">
-        <div class="form-grid">
-          <div class="field"><label for="loanOfficer">Loan Officer</label><select id="loanOfficer" required></select></div>
-          <div class="field"><label for="loanType">Loan Type</label><select id="loanType" required><option value="">Select one</option><option value="refinance">Refinance</option><option value="purchase">Purchase</option></select></div>
-          <div class="full summary" id="routingSummary">Choose a loan officer and loan type to populate routing and checklist details.</div>
+              <div class="field">
+                <label for="loanOfficer">Loan Officer <span class="req">*</span></label>
+                <input id="loanOfficer" name="loanOfficer" type="text" required />
+              </div>
+
+              <div class="field">
+                <label for="borrowerName">Borrower Name <span class="req">*</span></label>
+                <input id="borrowerName" name="borrowerName" type="text" required />
+              </div>
+
+              <div class="field">
+                <label for="propertyAddress">Property Address <span class="req">*</span></label>
+                <input id="propertyAddress" name="propertyAddress" type="text" required />
+              </div>
+
+              <div class="field">
+                <label for="loanNumber">Loan Number</label>
+                <input id="loanNumber" name="loanNumber" type="text" />
+              </div>
+
+              <div class="field">
+                <label for="submittedBy">Submitted By <span class="req">*</span></label>
+                <input id="submittedBy" name="submittedBy" type="text" required />
+              </div>
+
+              <div class="field full">
+                <label for="emailSubmissionTo">Email Submission To <span class="req">*</span></label>
+                <input id="emailSubmissionTo" name="emailSubmissionTo" type="text" required placeholder="Enter one or more email addresses separated by commas" />
+                <div class="hint">Example: Loanprocessing@zmgnow.com, zinteam@zmgnow.com</div>
+              </div>
+            </div>
+          </section>
+
+          <section id="refinanceSection" class="card hidden">
+            <h2 class="section-title">Refinance Submission Checklist</h2>
+            <p class="section-subtitle">Show only when Submission Type is Refinance.</p>
+
+            <div class="group">
+              <h4>Refinance Details</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="refiType">Refi Type <span class="req">*</span></label>
+                  <select id="refiType" name="refiType" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Cash Out</option>
+                    <option>No Cash Out</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="refiCashAtClose">Cash at Close, if any</label>
+                  <input id="refiCashAtClose" name="refiCashAtClose" class="currency" placeholder="$0 or N/A" />
+                </div>
+
+                <div class="field">
+                  <label for="refiCashToClose">Cash to Close Amount, if any</label>
+                  <input id="refiCashToClose" name="refiCashToClose" class="currency" placeholder="$0 or N/A" />
+                </div>
+
+                <div class="field">
+                  <label for="skipPayments">Skipping 1 or 2 Payments? <span class="req">*</span></label>
+                  <select id="skipPayments" name="skipPayments" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>0</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="lastPaymentMade">Last Payment Made</label>
+                  <input id="lastPaymentMade" name="lastPaymentMade" type="date" />
+                </div>
+
+                <div class="field">
+                  <label for="netTangibleBenefit">Is Net Tangible Benefit Filled Out in Encompass? <span class="req">*</span></label>
+                  <select id="netTangibleBenefit" name="netTangibleBenefit" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="deductEscrows">Deduct Escrows from Payoff? <span class="req">*</span></label>
+                  <select id="deductEscrows" name="deductEscrows" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Mortgage Insurance</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="refiMiType">MI Type <span class="req">*</span></label>
+                  <select id="refiMiType" name="refiMiType" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Monthly</option>
+                    <option>Single Premium</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+                <div class="field hidden" id="refiMiAmountWrap">
+                  <label for="refiMiAmount">MI Amount <span class="req">*</span></label>
+                  <input id="refiMiAmount" name="refiMiAmount" class="currency conditional-required" data-visible-required="refiMiAmountWrap" />
+                </div>
+                <div class="field">
+                  <label for="refiMiCompany">MI Company to Use</label>
+                  <input id="refiMiCompany" name="refiMiCompany" placeholder="Enter company or N/A" />
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Debt Exclusions</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="refiDebtExcluded">Are any debts being excluded? <span class="req">*</span></label>
+                  <select id="refiDebtExcluded" name="refiDebtExcluded" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div id="refiDebtDetails" class="full hidden">
+                  <div class="grid">
+                    <div class="field full">
+                      <label for="refiDebtsBeingExcluded">Debts Being Excluded <span class="req">*</span></label>
+                      <textarea id="refiDebtsBeingExcluded" name="refiDebtsBeingExcluded" class="conditional-required" data-visible-required="refiDebtDetails"></textarea>
+                    </div>
+                    <div class="field full">
+                      <label for="refiDebtWhy">Why are these debts being excluded? <span class="req">*</span></label>
+                      <textarea id="refiDebtWhy" name="refiDebtWhy" class="conditional-required" data-visible-required="refiDebtDetails"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Appraisal / Valuation</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="refiAppraisalType">Order Appraisal or PIW? <span class="req">*</span></label>
+                  <select id="refiAppraisalType" name="refiAppraisalType" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Order Appraisal</option>
+                    <option>PIW</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+                <div class="field full">
+                  <label for="refiAppraisalInstructions">Additional Appraisal / PIW Instructions</label>
+                  <textarea id="refiAppraisalInstructions" name="refiAppraisalInstructions"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Disclosure and Pricing</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="refiDisclosure">Disclose as Floating or Locked? <span class="req">*</span></label>
+                  <select id="refiDisclosure" name="refiDisclosure" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Floating</option>
+                    <option>Locked</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="refiOriginationCharge">Origination Charge</label>
+                  <input id="refiOriginationCharge" name="refiOriginationCharge" placeholder="$ or %" />
+                </div>
+                <div class="field">
+                  <label for="refiStandardOrigination">Standard Origination Charge? <span class="req">*</span></label>
+                  <select id="refiStandardOrigination" name="refiStandardOrigination" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="refiDiscountFee">Discount Fee</label>
+                  <input id="refiDiscountFee" name="refiDiscountFee" value=".624" />
+                </div>
+                <div class="field">
+                  <label for="refiPastClientCredit">Past Client Credit? <span class="req">*</span></label>
+                  <select id="refiPastClientCredit" name="refiPastClientCredit" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                  </select>
+                </div>
+                <div class="field hidden" id="refiPastClientCreditAmountWrap">
+                  <label for="refiPastClientCreditAmount">Past Client Credit Amount <span class="req">*</span></label>
+                  <input id="refiPastClientCreditAmount" name="refiPastClientCreditAmount" class="currency conditional-required" data-visible-required="refiPastClientCreditAmountWrap" />
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Recast Information</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="refiRecast">Will this loan be recast? <span class="req">*</span></label>
+                  <select id="refiRecast" name="refiRecast" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div id="refiRecastDetails" class="full hidden">
+                  <div class="grid">
+                    <div class="field">
+                      <label for="refiRecastTiming">How quickly will it be recast? <span class="req">*</span></label>
+                      <input id="refiRecastTiming" name="refiRecastTiming" class="conditional-required" data-visible-required="refiRecastDetails" />
+                    </div>
+                    <div class="field">
+                      <label for="refiWrittenCommitment">Do we have written commitment from the client that they will make the required amount of payments to avoid issues when recasting? <span class="req">*</span></label>
+                      <select id="refiWrittenCommitment" name="refiWrittenCommitment" class="conditional-required" data-visible-required="refiRecastDetails">
+                        <option value="">Select</option>
+                        <option>Yes</option>
+                        <option>No</option>
+                        <option>N/A</option>
+                      </select>
+                      <div class="hint">Written client commitment must be saved in the file.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Pricing Under 99.5</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="refiPricedUnder">Is Loan Priced Under 99.5? <span class="req">*</span></label>
+                  <select id="refiPricedUnder" name="refiPricedUnder" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div id="refiPricingDetails" class="full hidden">
+                  <div class="grid">
+                    <div class="field">
+                      <label for="refiLockPrice">Lock Price <span class="req">*</span></label>
+                      <input id="refiLockPrice" name="refiLockPrice" class="conditional-required" data-visible-required="refiPricingDetails" />
+                    </div>
+                    <div class="field">
+                      <label for="refiPricingReason">Reason <span class="req">*</span></label>
+                      <select id="refiPricingReason" name="refiPricingReason" class="conditional-required" data-visible-required="refiPricingDetails">
+                        <option value="">Select</option>
+                        <option>Competitive</option>
+                        <option>Benefit</option>
+                        <option>N/A</option>
+                      </select>
+                    </div>
+
+                    <div id="refiCompetitiveFields" class="full hidden">
+                      <div class="grid">
+                        <div class="field">
+                          <label for="refiCompetitorName">Competitor Name <span class="req">*</span></label>
+                          <input id="refiCompetitorName" name="refiCompetitorName" class="conditional-required" data-visible-required="refiCompetitiveFields" />
+                        </div>
+                        <div class="field">
+                          <label for="refiCompetitorRate">Competitor Rate Offered <span class="req">*</span></label>
+                          <input id="refiCompetitorRate" name="refiCompetitorRate" class="conditional-required" data-visible-required="refiCompetitiveFields" />
+                        </div>
+                        <div class="field">
+                          <label for="refiCompetitorPoints">Competitor Points Offered <span class="req">*</span></label>
+                          <input id="refiCompetitorPoints" name="refiCompetitorPoints" class="conditional-required" data-visible-required="refiCompetitiveFields" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div id="refiBenefitWrap" class="field full hidden">
+                      <label for="refiBenefitExplanation">Benefit Explanation <span class="req">*</span></label>
+                      <textarea id="refiBenefitExplanation" name="refiBenefitExplanation" class="conditional-required" data-visible-required="refiBenefitWrap"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="refiPricingLogged">Has Pricing Been Logged into Jungo? <span class="req">*</span></label>
+                  <select id="refiPricingLogged" name="refiPricingLogged" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Lead Source</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="refiLeadSourceType">Lead Source Type <span class="req">*</span></label>
+                  <select id="refiLeadSourceType" name="refiLeadSourceType" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Self</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="refiLeadChannel">Lead Channel <span class="req">*</span></label>
+                  <select id="refiLeadChannel" name="refiLeadChannel" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Existing Customer</option>
+                    <option>Broker</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Closing Review</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="refiClosingReview">Closing Review Appointment Set Up? <span class="req">*</span></label>
+                  <select id="refiClosingReview" name="refiClosingReview" data-required-when="Refinance">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                  </select>
+                </div>
+
+                <div class="field full">
+                  <label for="refiStory">Story <span class="req">*</span></label>
+                  <textarea id="refiStory" name="refiStory" data-required-when="Refinance"></textarea>
+                  <div class="hint">Explain the refinance story, borrower goal, reason for refinance, cash out or no cash out details, payment strategy, debt payoff details, pricing notes, appraisal notes, recast notes, and anything the team needs to know before working the file.</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="purchaseSection" class="card hidden">
+            <h2 class="section-title">Purchase Submission Checklist</h2>
+            <p class="section-subtitle">Show only when Submission Type is Purchase.</p>
+
+            <div class="group">
+              <h4>Purchase Details</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchaseCashToClose">Cash to Close <span class="req">*</span></label>
+                  <input id="purchaseCashToClose" name="purchaseCashToClose" class="currency" data-required-when="Purchase" />
+                </div>
+
+                <div class="field">
+                  <label for="purchaseAppraisalType">Order Appraisal or PIW <span class="req">*</span></label>
+                  <select id="purchaseAppraisalType" name="purchaseAppraisalType" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Order Appraisal</option>
+                    <option>PIW with LP and DU</option>
+                    <option>PIW</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div class="field full">
+                  <label for="purchaseAppraisalInstructions">Additional Appraisal / PIW Instructions</label>
+                  <textarea id="purchaseAppraisalInstructions" name="purchaseAppraisalInstructions"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Mortgage Insurance</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchaseMiType">MI Type <span class="req">*</span></label>
+                  <select id="purchaseMiType" name="purchaseMiType" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Monthly MI</option>
+                    <option>Single Premium MI</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+                <div class="field hidden" id="purchaseMiAmountWrap">
+                  <label for="purchaseMiAmount">MI Amount <span class="req">*</span></label>
+                  <input id="purchaseMiAmount" name="purchaseMiAmount" class="currency conditional-required" data-visible-required="purchaseMiAmountWrap" />
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Cash to Close Source</h4>
+              <div class="grid">
+                <div class="field full">
+                  <label>Cash to Close Coming From <span class="req">*</span></label>
+                  <div class="checkbox-grid" id="cashSourceList">
+                    <label class="check"><input type="checkbox" name="cashSource" value="Bank Account"> Bank Account</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Retirement Account"> Retirement Account</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Proceeds from Sale of Property"> Proceeds from Sale of Property</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Gift Funds"> Gift Funds</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Stocks / Bonds / Investment Account"> Stocks / Bonds / Investment Account</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Business Account"> Business Account</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Trust Account"> Trust Account</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Secured Borrowed Funds"> Secured Borrowed Funds</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Sale of Personal Property"> Sale of Personal Property</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="FHA Approved Source"> FHA Approved Source</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="VA Approved Source"> VA Approved Source</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="USDA Approved Source"> USDA Approved Source</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Fannie Mae Approved Source"> Fannie Mae Approved Source</label>
+                    <label class="check"><input type="checkbox" name="cashSource" value="Freddie Mac Approved Source"> Freddie Mac Approved Source</label>
+                    <label class="check"><input type="checkbox" id="cashSourceOtherCheck" name="cashSource" value="Other"> Other</label>
+                  </div>
+                  <div class="hint">Select all that apply.</div>
+                  <div class="error-text hidden" id="cashSourceError">Please select at least one cash to close source.</div>
+                </div>
+
+                <div class="field full hidden" id="otherCashSourceWrap">
+                  <label for="otherCashSource">Other Cash to Close Source <span class="req">*</span></label>
+                  <input id="otherCashSource" name="otherCashSource" class="conditional-required" data-visible-required="otherCashSourceWrap" />
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Debt Exclusions</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchaseDebtExcluded">Are any debts being excluded? <span class="req">*</span></label>
+                  <select id="purchaseDebtExcluded" name="purchaseDebtExcluded" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div id="purchaseDebtDetails" class="full hidden">
+                  <div class="grid">
+                    <div class="field full">
+                      <label for="purchaseDebtsBeingExcluded">Debts Being Excluded <span class="req">*</span></label>
+                      <textarea id="purchaseDebtsBeingExcluded" name="purchaseDebtsBeingExcluded" class="conditional-required" data-visible-required="purchaseDebtDetails"></textarea>
+                    </div>
+                    <div class="field full">
+                      <label for="purchaseDebtWhy">Why are these debts being excluded? <span class="req">*</span></label>
+                      <textarea id="purchaseDebtWhy" name="purchaseDebtWhy" class="conditional-required" data-visible-required="purchaseDebtDetails"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Domino Closing</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="dominoClosing">Domino Closing? <span class="req">*</span></label>
+                  <select id="dominoClosing" name="dominoClosing" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div class="field hidden" id="dominoRealtorWrap">
+                  <label for="dominoRealtor">Who is the Realtor helping them sell their current home? <span class="req">*</span></label>
+                  <input id="dominoRealtor" name="dominoRealtor" class="conditional-required" data-visible-required="dominoRealtorWrap" />
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Disclosure and Lock Status</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchaseDisclosure">Disclose as Floating or Locked? <span class="req">*</span></label>
+                  <select id="purchaseDisclosure" name="purchaseDisclosure" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Floating</option>
+                    <option selected>Locked</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="purchaseFloatDown">Float Down Eligible? <span class="req">*</span></label>
+                  <select id="purchaseFloatDown" name="purchaseFloatDown" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Origination and Discount</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchaseOriginationCharge">Origination Charge</label>
+                  <input id="purchaseOriginationCharge" name="purchaseOriginationCharge" placeholder="$ or %" />
+                </div>
+
+                <div class="field">
+                  <label for="purchaseStandardOrigination">Standard Origination Charge? <span class="req">*</span></label>
+                  <select id="purchaseStandardOrigination" name="purchaseStandardOrigination" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="purchaseDiscountFee">Discount Fee</label>
+                  <input id="purchaseDiscountFee" name="purchaseDiscountFee" placeholder="Examples: 1.25, $2,500, N/A" />
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Recast Information</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchaseRecast">Will this loan be recast? <span class="req">*</span></label>
+                  <select id="purchaseRecast" name="purchaseRecast" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div class="field full hidden" id="purchaseRecastNotesWrap">
+                  <label for="purchaseRecastNotes">Recast Notes / Timing <span class="req">*</span></label>
+                  <textarea id="purchaseRecastNotes" name="purchaseRecastNotes" class="conditional-required" data-visible-required="purchaseRecastNotesWrap"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Pricing Under 99.5</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchasePricedUnder">Is Loan Priced Under 99.5? <span class="req">*</span></label>
+                  <select id="purchasePricedUnder" name="purchasePricedUnder" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div id="purchasePricingDetails" class="full hidden">
+                  <div class="grid">
+                    <div class="field">
+                      <label for="purchaseLockPrice">Lock Price <span class="req">*</span></label>
+                      <input id="purchaseLockPrice" name="purchaseLockPrice" class="conditional-required" data-visible-required="purchasePricingDetails" />
+                    </div>
+
+                    <div class="field">
+                      <label for="purchasePricingReason">Reason <span class="req">*</span></label>
+                      <select id="purchasePricingReason" name="purchasePricingReason" class="conditional-required" data-visible-required="purchasePricingDetails">
+                        <option value="">Select</option>
+                        <option>Competitive</option>
+                        <option>Benefit</option>
+                        <option>N/A</option>
+                      </select>
+                    </div>
+
+                    <div id="purchaseCompetitiveWrap" class="full hidden">
+                      <div class="grid">
+                        <div class="field">
+                          <label for="purchaseCompetitorName">Competitor Name <span class="req">*</span></label>
+                          <input id="purchaseCompetitorName" name="purchaseCompetitorName" class="conditional-required" data-visible-required="purchaseCompetitiveWrap" />
+                        </div>
+                        <div class="field">
+                          <label for="purchaseCompetitorRate">Competitor Rate Offered <span class="req">*</span></label>
+                          <input id="purchaseCompetitorRate" name="purchaseCompetitorRate" class="conditional-required" data-visible-required="purchaseCompetitiveWrap" />
+                        </div>
+                        <div class="field">
+                          <label for="purchaseCompetitorPoints">Competitor Points Offered <span class="req">*</span></label>
+                          <input id="purchaseCompetitorPoints" name="purchaseCompetitorPoints" class="conditional-required" data-visible-required="purchaseCompetitiveWrap" />
+                        </div>
+                        <div class="field">
+                          <label for="purchaseQuoteIncluded">Quote Document or Email Included? <span class="req">*</span></label>
+                          <select id="purchaseQuoteIncluded" name="purchaseQuoteIncluded" class="conditional-required" data-visible-required="purchaseCompetitiveWrap">
+                            <option value="">Select</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                            <option>N/A</option>
+                          </select>
+                          <div class="hint">If competitive pricing is being used, include the quote document or email when available. If not available, choose N/A.</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div id="purchaseBenefitWrap" class="field full hidden">
+                      <label for="purchaseBenefitExplanation">Benefit Explanation <span class="req">*</span></label>
+                      <textarea id="purchaseBenefitExplanation" name="purchaseBenefitExplanation" class="conditional-required" data-visible-required="purchaseBenefitWrap"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="purchasePricingLogged">Has Pricing Been Logged into Jungo? <span class="req">*</span></label>
+                  <select id="purchasePricingLogged" name="purchasePricingLogged" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Lead Source</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchaseLeadSourceType">Lead Source Type <span class="req">*</span></label>
+                  <select id="purchaseLeadSourceType" name="purchaseLeadSourceType" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Self</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="purchaseLeadChannel">Lead Channel <span class="req">*</span></label>
+                  <select id="purchaseLeadChannel" name="purchaseLeadChannel" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Existing Customer</option>
+                    <option>Broker</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>First-Time Homebuyer / Contact / Mobile App</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchaseFthbStatus">Is Borrower’s FTHB Status Showing Correctly in Encompass? <span class="req">*</span></label>
+                  <select id="purchaseFthbStatus" name="purchaseFthbStatus" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="preferredContact">Preferred Method of Contact <span class="req">*</span></label>
+                  <select id="preferredContact" name="preferredContact" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Email</option>
+                    <option>Text</option>
+                    <option>Call</option>
+                  </select>
+                </div>
+
+                <div class="field hidden" id="servicingLinkWrap">
+                  <label for="servicingLinkAdded">If Locked, is the Servicing Link Added to Mobile App? <span class="req">*</span></label>
+                  <select id="servicingLinkAdded" name="servicingLinkAdded" class="conditional-required" data-visible-required="servicingLinkWrap">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>N/A</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <h4>Closing Review</h4>
+              <div class="grid">
+                <div class="field">
+                  <label for="purchaseClosingReview">Closing Review Appointment Set Up? <span class="req">*</span></label>
+                  <select id="purchaseClosingReview" name="purchaseClosingReview" data-required-when="Purchase">
+                    <option value="">Select</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                  </select>
+                </div>
+
+                <div class="field full hidden" id="purchaseClosingWhyWrap">
+                  <label for="purchaseClosingWhy">If no, why? <span class="req">*</span></label>
+                  <textarea id="purchaseClosingWhy" name="purchaseClosingWhy" class="conditional-required" data-visible-required="purchaseClosingWhyWrap"></textarea>
+                </div>
+
+                <div class="field full">
+                  <label for="purchaseStory">Story <span class="req">*</span></label>
+                  <textarea id="purchaseStory" name="purchaseStory" data-required-when="Purchase"></textarea>
+                  <div class="hint">Explain the purchase story, borrower goals, property details, contract details, cash to close source, appraisal or PIW notes, MI details, pricing notes, domino closing details, excluded debts, FTHB status, servicing link notes, and anything the team needs to know before working the file.</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2 class="section-title">Review and Submit</h2>
+            <p class="section-subtitle">Review the file before final submission to the team.</p>
+            <div class="btn-row">
+              <button type="button" class="btn-secondary" id="reviewBtn">Review Submission</button>
+              <button type="button" class="btn-secondary" id="editBtn">Return to Editing</button>
+              <button type="button" class="btn-primary" id="submitBtn">Submit File</button>
+            </div>
+            <div class="status" id="statusMsg"></div>
+
+            <div class="review-wrap hidden" id="reviewWrap">
+              <div class="summary-box" id="summaryBox"></div>
+            </div>
+          </section>
+        </form>
+      </div>
+
+      <aside class="sticky">
+        <div class="card sidebar-card">
+          <h3>Submission Notes</h3>
+          <p>Only the selected checklist appears. Required fields change automatically based on visible questions and conditional responses.</p>
+          <p>Use <strong>Review Submission</strong> before sending the file. The final email will be grouped by section and include all visible answers.</p>
+          <div class="footer-actions">
+            <div class="btn-row">
+              <button type="button" class="btn-primary" id="reviewBtnSide">Review Submission</button>
+              <button type="button" class="btn-secondary" id="submitBtnSide">Submit File</button>
+            </div>
+          </div>
         </div>
-
-        <section class="section">
-          <div class="form-grid">
-            <div class="field"><label for="borrowerName">Borrower Name</label><input id="borrowerName" required></div>
-            <div class="field"><label for="propertyAddress">Property Address</label><input id="propertyAddress" required></div>
-            <div class="field"><label for="loanNumber">Loan Number</label><input id="loanNumber"></div>
-            <div class="field"><label for="submittedBy">Submitted By</label><input id="submittedBy"></div>
-          </div>
-        </section>
-
-        <section id="refinanceSection" class="section hidden">
-          <p class="helper">Refinance checklist</p>
-          <div class="form-grid">
-            <div class="field"><label for="refiType">Refi Type</label><select id="refiType"><option value=""></option><option>Cash Out</option><option>No Cash Out</option></select></div>
-            <div class="field"><label for="cashAtClose">Cash at Close</label><input id="cashAtClose"></div>
-            <div class="field"><label for="cashToCloseAmount">Cash to Close Amount</label><input id="cashToCloseAmount"></div>
-            <div class="field"><label for="skippingPayments">Skipping 1 or 2 Payments</label><select id="skippingPayments"><option value=""></option><option>1 Payment</option><option>2 Payments</option><option>No</option></select></div>
-            <div class="field"><label for="lastPaymentMade">Last Payment Made</label><input id="lastPaymentMade"></div>
-            <div class="full"><label for="storyRefi">Story</label><textarea id="storyRefi"></textarea></div>
-            <div class="full"><label for="debtsExcludedRefi">Excluded Debts / Why</label><textarea id="debtsExcludedRefi"></textarea></div>
-          </div>
-        </section>
-
-        <section id="purchaseSection" class="section hidden">
-          <p class="helper">Purchase checklist</p>
-          <div class="form-grid">
-            <div class="field"><label for="cashToClosePurchase">Cash to Close</label><input id="cashToClosePurchase"></div>
-            <div class="field"><label for="orderAppraisalPurchase">Order Appraisal or PIW</label><input id="orderAppraisalPurchase" value="PIW with LP and DU"></div>
-            <div class="field"><label for="miPurchase">MI Monthly or Single</label><input id="miPurchase" value="Monthly MI; yes"></div>
-            <div class="field"><label for="preferredContact">Preferred Method of Contact</label><select id="preferredContact"><option value=""></option><option>Email</option><option>Text</option><option>Call</option></select></div>
-            <div class="full"><label>Cash to Close Coming From</label><div class="checkbox-group" id="cashSourceGroup"></div></div>
-            <div class="full"><label for="storyPurchase">Story</label><textarea id="storyPurchase"></textarea></div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="status" id="statusBox">Ready for hosted Gmail submission.</div>
-          <div class="actions">
-            <button class="btn btn-primary" type="submit">Submit Form</button>
-            <button class="btn btn-secondary" type="button" id="emailDraftBtn">Open Email Draft</button>
-            <button class="btn btn-secondary" type="reset">Reset</button>
-          </div>
-        </section>
-      </form>
-    </main>
+      </aside>
+    </div>
   </div>
-</div>
-<script>
-const officers=[
-  {name:'Steven Zin',emails:['Loanprocessing@zmgnow.com','zinteam@zmgnow.com']},
-  {name:'Teresa Clark',emails:['Loanprocessing@zmgnow.com','teamclark@tdcmtg.com']},
-  {name:'Cari LaMere',emails:['Loanprocessing@zmgnow.com','lamereteam@zmgnow.com']},
-  {name:'Chasten Gerhart',emails:['Loanprocessing@zmgnow.com','chastenteam@zmgnow.com']}
-];
-const cashSources=['Bank Account','Retirement Account','Proceeds from Sale of Property','Gift Funds','Stocks or Bonds','Seller Credit','Grant Funds','Secured Borrowed Funds','Employer Assistance'];
 
-const officerSelect=document.getElementById('loanOfficer');
-const loanTypeSelect=document.getElementById('loanType');
-const routingSummary=document.getElementById('routingSummary');
-const refinanceSection=document.getElementById('refinanceSection');
-const purchaseSection=document.getElementById('purchaseSection');
-const teamList=document.getElementById('teamList');
-const form=document.getElementById('submissionForm');
-const cashSourceGroup=document.getElementById('cashSourceGroup');
-const statusBox=document.getElementById('statusBox');
-const themeToggle=document.getElementById('themeToggle');
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const form = $('submissionForm');
+    const summaryBox = $('summaryBox');
+    const reviewWrap = $('reviewWrap');
+    const statusMsg = $('statusMsg');
 
-document.documentElement.setAttribute('data-theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
-themeToggle.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀':'☾';
-themeToggle.onclick=()=>{const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',next);themeToggle.textContent=next==='dark'?'☀':'☾';};
+    const submissionType = $('submissionType');
+    const refinanceSection = $('refinanceSection');
+    const purchaseSection = $('purchaseSection');
 
-officerSelect.innerHTML='<option value=\"\">Select one</option>'+officers.map(o=>`<option value=\"${o.name}\">${o.name}</option>`).join('');
-teamList.innerHTML=officers.map(o=>`<div class=\"team-card\"><strong>${o.name}</strong>${o.emails.map(e=>`<span>${e}</span>`).join('')}</div>`).join('');
-cashSourceGroup.innerHTML=cashSources.map(s=>`<label class=\"checkbox-item\"><input type=\"checkbox\" name=\"cashSources\" value=\"${s}\"><span>${s}</span></label>`).join('');
+    function setStep(step){
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      document.querySelector(`.pill[data-step="${step}"]`)?.classList.add('active');
+    }
 
-function updateSummary(){
-  const officer=officers.find(o=>o.name===officerSelect.value);
-  const type=loanTypeSelect.value?loanTypeSelect.value[0].toUpperCase()+loanTypeSelect.value.slice(1):'Not selected';
-  routingSummary.innerHTML=`<div><strong>Email routing:</strong> ${officer?officer.emails.join(', '):'Choose a loan officer.'}</div><div><strong>Checklist:</strong> ${type}</div>`;
-}
-function toggleSections(){
-  const type=loanTypeSelect.value;
-  refinanceSection.classList.toggle('hidden',type!=='refinance');
-  purchaseSection.classList.toggle('hidden',type!=='purchase');
-  updateSummary();
-}
-officerSelect.addEventListener('change',updateSummary);
-loanTypeSelect.addEventListener('change',toggleSections);
+    function show(el){ el.classList.remove('hidden'); }
+    function hide(el){ el.classList.add('hidden'); }
 
-function buildPayload(){
-  const officer=officers.find(o=>o.name===officerSelect.value);
-  const type=loanTypeSelect.value;
-  const payload={
-    loanOfficer:officer?.name||'',
-    emails:officer?.emails||[],
-    loanType:type,
-    borrowerName:document.getElementById('borrowerName').value.trim(),
-    propertyAddress:document.getElementById('propertyAddress').value.trim(),
-    loanNumber:document.getElementById('loanNumber').value.trim(),
-    submittedBy:document.getElementById('submittedBy').value.trim()
-  };
-  if(type==='refinance'){
-    payload.details={
-      refiType:refiType.value,
-      cashAtClose:cashAtClose.value,
-      cashToCloseAmount:cashToCloseAmount.value,
-      skippingPayments:skippingPayments.value,
-      lastPaymentMade:lastPaymentMade.value,
-      story:storyRefi.value,
-      debtsExcluded:debtsExcludedRefi.value
-    };
-  }
-  if(type==='purchase'){
-    payload.details={
-      cashToClose:cashToClosePurchase.value,
-      orderAppraisal:orderAppraisalPurchase.value,
-      mi:miPurchase.value,
-      preferredContact:preferredContact.value,
-      cashSources:[...document.querySelectorAll('input[name=\"cashSources\"]:checked')].map(x=>x.value),
-      story:storyPurchase.value
-    };
-  }
-  return payload;
-}
-function openDraft(payload){
-  const subject=encodeURIComponent(`${payload.loanType[0].toUpperCase()+payload.loanType.slice(1)} Submission - ${payload.borrowerName||'Borrower'}`);
-  const body=encodeURIComponent(JSON.stringify(payload,null,2));
-  window.location.href=`mailto:${payload.emails.join(',')}?subject=${subject}&body=${body}`;
-}
+    function isVisible(el){
+      return !!(el && el.offsetParent !== null && !el.classList.contains('hidden'));
+    }
 
-form.addEventListener('submit',async(e)=>{
-  e.preventDefault();
-  const payload=buildPayload();
-  if(!payload.loanOfficer||!payload.loanType){
-    statusBox.textContent='Select the loan officer and loan type first.';
-    return;
-  }
-  statusBox.textContent='Submitting...';
-  try{
-    const res=await fetch('/api/send-submission',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const data=await res.json();
-    if(!res.ok) throw new Error(data.error||'Submission failed');
-    statusBox.textContent='Submission sent successfully.';
-  }catch(err){
-    statusBox.textContent=`Submission failed: ${err.message}`;
-  }
-});
-document.getElementById('emailDraftBtn').addEventListener('click',()=>{
-  const payload=buildPayload();
-  if(!payload.loanOfficer||!payload.loanType){
-    statusBox.textContent='Select the loan officer and loan type first.';
-    return;
-  }
-  openDraft(payload);
-});
-updateSummary();
-</script>
+    function emailListValid(value){
+      const emails = value.split(',').map(v=>v.trim()).filter(Boolean);
+      if (!emails.length) return false;
+      return emails.every(e => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(e));
+    }
+
+    function formatCurrencyValue(v){
+      const raw = String(v || '').trim();
+      if (!raw) return '';
+      if (/^n\\/a$/i.test(raw)) return 'N/A';
+      const cleaned = raw.replace(/[$,]/g,'');
+      if (cleaned === '') return '';
+      if (isNaN(cleaned)) return raw;
+      const num = Number(cleaned);
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(num);
+    }
+
+    function attachCurrencyFormatting(){
+      document.querySelectorAll('.currency').forEach(input=>{
+        input.addEventListener('blur', ()=>{
+          const value = input.value.trim();
+          if (!value) return;
+          if (/^n\\/a$/i.test(value)) { input.value = 'N/A'; return; }
+          input.value = formatCurrencyValue(value);
+        });
+      });
+    }
+
+    function clearErrors(){
+      form.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+      form.querySelectorAll('.error-text.dynamic').forEach(el => el.remove());
+      $('cashSourceError').classList.add('hidden');
+    }
+
+    function addError(input, msg){
+      input.classList.add('error');
+      const div = document.createElement('div');
+      div.className = 'error-text dynamic';
+      div.textContent = msg;
+      input.parentNode.appendChild(div);
+    }
+
+    function selectedCashSources(){
+      return [...document.querySelectorAll('input[name="cashSource"]:checked')].map(el=>el.value);
+    }
+
+    function handleSections(){
+      const type = submissionType.value;
+      type === 'Refinance' ? show(refinanceSection) : hide(refinanceSection);
+      type === 'Purchase' ? show(purchaseSection) : hide(purchaseSection);
+    }
+
+    function handleConditionalLogic(){
+      // Refinance
+      $('refiMiType').value === 'Monthly' || $('refiMiType').value === 'Single Premium'
+        ? show($('refiMiAmountWrap')) : hide($('refiMiAmountWrap'));
+
+      $('refiDebtExcluded').value === 'Yes'
+        ? show($('refiDebtDetails')) : hide($('refiDebtDetails'));
+
+      $('refiPastClientCredit').value === 'Yes'
+        ? show($('refiPastClientCreditAmountWrap')) : hide($('refiPastClientCreditAmountWrap'));
+
+      $('refiRecast').value === 'Yes'
+        ? show($('refiRecastDetails')) : hide($('refiRecastDetails'));
+
+      $('refiPricedUnder').value === 'Yes'
+        ? show($('refiPricingDetails')) : hide($('refiPricingDetails'));
+
+      $('refiPricingReason').value === 'Competitive'
+        ? show($('refiCompetitiveFields')) : hide($('refiCompetitiveFields'));
+
+      $('refiPricingReason').value === 'Benefit'
+        ? show($('refiBenefitWrap')) : hide($('refiBenefitWrap'));
+
+      // Purchase
+      $('purchaseMiType').value === 'Monthly MI' || $('purchaseMiType').value === 'Single Premium MI'
+        ? show($('purchaseMiAmountWrap')) : hide($('purchaseMiAmountWrap'));
+
+      document.querySelector('#cashSourceOtherCheck').checked
+        ? show($('otherCashSourceWrap')) : hide($('otherCashSourceWrap'));
+
+      $('purchaseDebtExcluded').value === 'Yes'
+        ? show($('purchaseDebtDetails')) : hide($('purchaseDebtDetails'));
+
+      $('dominoClosing').value === 'Yes'
+        ? show($('dominoRealtorWrap')) : hide($('dominoRealtorWrap'));
+
+      $('purchaseRecast').value === 'Yes'
+        ? show($('purchaseRecastNotesWrap')) : hide($('purchaseRecastNotesWrap'));
+
+      $('purchasePricedUnder').value === 'Yes'
+        ? show($('purchasePricingDetails')) : hide($('purchasePricingDetails'));
+
+      $('purchasePricingReason').value === 'Competitive'
+        ? show($('purchaseCompetitiveWrap')) : hide($('purchaseCompetitiveWrap'));
+
+      $('purchasePricingReason').value === 'Benefit'
+        ? show($('purchaseBenefitWrap')) : hide($('purchaseBenefitWrap'));
+
+      $('purchaseDisclosure').value === 'Locked'
+        ? show($('servicingLinkWrap')) : hide($('servicingLinkWrap'));
+
+      $('purchaseClosingReview').value === 'No'
+        ? show($('purchaseClosingWhyWrap')) : hide($('purchaseClosingWhyWrap'));
+    }
+
+    function fieldValue(id){
+      const el = $(id);
+      if (!el) return '';
+      return el.value?.trim() || '';
+    }
+
+    function buildData(){
+      const data = {
+        general: {
+          submissionType: fieldValue('submissionType'),
+          loanOfficer: fieldValue('loanOfficer'),
+          borrowerName: fieldValue('borrowerName'),
+          propertyAddress: fieldValue('propertyAddress'),
+          loanNumber: fieldValue('loanNumber'),
+          submittedBy: fieldValue('submittedBy'),
+          emailSubmissionTo: fieldValue('emailSubmissionTo')
+        },
+        refinance: {},
+        purchase: {}
+      };
+
+      if (data.general.submissionType === 'Refinance'){
+        data.refinance = {
+          refiType: fieldValue('refiType'),
+          cashAtClose: fieldValue('refiCashAtClose'),
+          cashToCloseAmount: fieldValue('refiCashToClose'),
+          skippingPayments: fieldValue('skipPayments'),
+          lastPaymentMade: fieldValue('lastPaymentMade'),
+          netTangibleBenefit: fieldValue('netTangibleBenefit'),
+          deductEscrows: fieldValue('deductEscrows'),
+          miType: fieldValue('refiMiType'),
+          miAmount: isVisible($('refiMiAmountWrap')) ? fieldValue('refiMiAmount') : '',
+          miCompany: fieldValue('refiMiCompany'),
+          debtsExcluded: fieldValue('refiDebtExcluded'),
+          debtsBeingExcluded: isVisible($('refiDebtDetails')) ? fieldValue('refiDebtsBeingExcluded') : '',
+          debtExclusionWhy: isVisible($('refiDebtDetails')) ? fieldValue('refiDebtWhy') : '',
+          appraisalType: fieldValue('refiAppraisalType'),
+          appraisalInstructions: fieldValue('refiAppraisalInstructions'),
+          disclosure: fieldValue('refiDisclosure'),
+          originationCharge: fieldValue('refiOriginationCharge'),
+          standardOrigination: fieldValue('refiStandardOrigination'),
+          discountFee: fieldValue('refiDiscountFee'),
+          pastClientCredit: fieldValue('refiPastClientCredit'),
+          pastClientCreditAmount: isVisible($('refiPastClientCreditAmountWrap')) ? fieldValue('refiPastClientCreditAmount') : '',
+          recast: fieldValue('refiRecast'),
+          recastTiming: isVisible($('refiRecastDetails')) ? fieldValue('refiRecastTiming') : '',
+          writtenCommitment: isVisible($('refiRecastDetails')) ? fieldValue('refiWrittenCommitment') : '',
+          pricedUnder99_5: fieldValue('refiPricedUnder'),
+          lockPrice: isVisible($('refiPricingDetails')) ? fieldValue('refiLockPrice') : '',
+          pricingReason: isVisible($('refiPricingDetails')) ? fieldValue('refiPricingReason') : '',
+          competitorName: isVisible($('refiCompetitiveFields')) ? fieldValue('refiCompetitorName') : '',
+          competitorRate: isVisible($('refiCompetitiveFields')) ? fieldValue('refiCompetitorRate') : '',
+          competitorPoints: isVisible($('refiCompetitiveFields')) ? fieldValue('refiCompetitorPoints') : '',
+          benefitExplanation: isVisible($('refiBenefitWrap')) ? fieldValue('refiBenefitExplanation') : '',
+          pricingLoggedIntoJungo: fieldValue('refiPricingLogged'),
+          leadSourceType: fieldValue('refiLeadSourceType'),
+          leadChannel: fieldValue('refiLeadChannel'),
+          closingReviewAppointment: fieldValue('refiClosingReview'),
+          story: fieldValue('refiStory')
+        };
+      }
+
+      if (data.general.submissionType === 'Purchase'){
+        data.purchase = {
+          cashToClose: fieldValue('purchaseCashToClose'),
+          appraisalType: fieldValue('purchaseAppraisalType'),
+          appraisalInstructions: fieldValue('purchaseAppraisalInstructions'),
+          miType: fieldValue('purchaseMiType'),
+          miAmount: isVisible($('purchaseMiAmountWrap')) ? fieldValue('purchaseMiAmount') : '',
+          cashToCloseSources: selectedCashSources(),
+          otherCashSource: isVisible($('otherCashSourceWrap')) ? fieldValue('otherCashSource') : '',
+          debtsExcluded: fieldValue('purchaseDebtExcluded'),
+          debtsBeingExcluded: isVisible($('purchaseDebtDetails')) ? fieldValue('purchaseDebtsBeingExcluded') : '',
+          debtExclusionWhy: isVisible($('purchaseDebtDetails')) ? fieldValue('purchaseDebtWhy') : '',
+          dominoClosing: fieldValue('dominoClosing'),
+          dominoRealtor: isVisible($('dominoRealtorWrap')) ? fieldValue('dominoRealtor') : '',
+          disclosure: fieldValue('purchaseDisclosure'),
+          floatDownEligible: fieldValue('purchaseFloatDown'),
+          originationCharge: fieldValue('purchaseOriginationCharge'),
+          standardOrigination: fieldValue('purchaseStandardOrigination'),
+          discountFee: fieldValue('purchaseDiscountFee'),
+          recast: fieldValue('purchaseRecast'),
+          recastNotes: isVisible($('purchaseRecastNotesWrap')) ? fieldValue('purchaseRecastNotes') : '',
+          pricedUnder99_5: fieldValue('purchasePricedUnder'),
+          lockPrice: isVisible($('purchasePricingDetails')) ? fieldValue('purchaseLockPrice') : '',
+          pricingReason: isVisible($('purchasePricingDetails')) ? fieldValue('purchasePricingReason') : '',
+          competitorName: isVisible($('purchaseCompetitiveWrap')) ? fieldValue('purchaseCompetitorName') : '',
+          competitorRate: isVisible($('purchaseCompetitiveWrap')) ? fieldValue('purchaseCompetitorRate') : '',
+          competitorPoints: isVisible($('purchaseCompetitiveWrap')) ? fieldValue('purchaseCompetitorPoints') : '',
+          quoteIncluded: isVisible($('purchaseCompetitiveWrap')) ? fieldValue('purchaseQuoteIncluded') : '',
+          benefitExplanation: isVisible($('purchaseBenefitWrap')) ? fieldValue('purchaseBenefitExplanation') : '',
+          pricingLoggedIntoJungo: fieldValue('purchasePricingLogged'),
+          leadSourceType: fieldValue('purchaseLeadSourceType'),
+          leadChannel: fieldValue('purchaseLeadChannel'),
+          fthbStatus: fieldValue('purchaseFthbStatus'),
+          preferredContact: fieldValue('preferredContact'),
+          servicingLinkAdded: isVisible($('servicingLinkWrap')) ? fieldValue('servicingLinkAdded') : '',
+          closingReviewAppointment: fieldValue('purchaseClosingReview'),
+          closingReviewWhy: isVisible($('purchaseClosingWhyWrap')) ? fieldValue('purchaseClosingWhy') : '',
+          story: fieldValue('purchaseStory')
+        };
+      }
+
+      return data;
+    }
+
+    function prettyLabel(key){
+      return key
+        .replace(/([A-Z])/g,' $1')
+        .replace(/_/g,' ')
+        .replace(/^./, s => s.toUpperCase());
+    }
+
+    function renderSection(title, obj){
+      const rows = Object.entries(obj)
+        .filter(([,v]) => Array.isArray(v) ? v.length : String(v || '').trim())
+        .map(([k,v]) => {
+          const val = Array.isArray(v) ? v.join(', ') : v;
+          return `<div class="summary-row"><strong>${prettyLabel(k)}</strong><div>${escapeHtml(String(val)).replace(/\\n/g,'<br>')}</div></div>`;
+        }).join('');
+
+      return `<div class="summary-section"><h4>${title}</h4>${rows || '<div class="summary-row"><strong>No data</strong><div>None entered.</div></div>'}</div>`;
+    }
+
+    function escapeHtml(str){
+      return str
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+    }
+
+    function renderSummary(data){
+      let html = '';
+      html += renderSection('General Information', data.general);
+      if (data.general.submissionType === 'Refinance') html += renderSection('Refinance Submission Checklist', data.refinance);
+      if (data.general.submissionType === 'Purchase') html += renderSection('Purchase Submission Checklist', data.purchase);
+      summaryBox.innerHTML = html;
+    }
+
+    function validateForm(){
+      clearErrors();
+      handleSections();
+      handleConditionalLogic();
+
+      let valid = true;
+      const type = submissionType.value;
+
+      const baseRequired = ['submissionType','loanOfficer','borrowerName','propertyAddress','submittedBy','emailSubmissionTo'];
+      baseRequired.forEach(id=>{
+        const el = $(id);
+        if (!fieldValue(id)){
+          addError(el, 'This field is required.');
+          valid = false;
+        }
+      });
+
+      if (fieldValue('emailSubmissionTo') && !emailListValid(fieldValue('emailSubmissionTo'))){
+        addError($('emailSubmissionTo'), 'Enter valid email addresses separated by commas.');
+        valid = false;
+      }
+
+      form.querySelectorAll('[data-required-when]').forEach(el=>{
+        if (el.getAttribute('data-required-when') === type && !fieldValue(el.id)){
+          addError(el, 'This field is required.');
+          valid = false;
+        }
+      });
+
+      form.querySelectorAll('.conditional-required').forEach(el=>{
+        const wrapId = el.getAttribute('data-visible-required');
+        const wrap = $(wrapId);
+        if (isVisible(wrap) && !fieldValue(el.id)){
+          addError(el, 'This field is required.');
+          valid = false;
+        }
+      });
+
+      if (type === 'Purchase'){
+        if (!selectedCashSources().length){
+          $('cashSourceError').classList.remove('hidden');
+          valid = false;
+        }
+      }
+
+      if (!valid){
+        statusMsg.textContent = 'Please complete the required fields before continuing.';
+        setStep(1);
+      } else {
+        statusMsg.textContent = '';
+      }
+
+      return valid;
+    }
+
+    function reviewSubmission(){
+      if (!validateForm()) return;
+      const data = buildData();
+      renderSummary(data);
+      show(reviewWrap);
+      setStep(2);
+      statusMsg.textContent = 'Review your submission below, then click Submit File.';
+      reviewWrap.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    async function submitFile(){
+      if (!validateForm()) return;
+
+      const data = buildData();
+      renderSummary(data);
+      show(reviewWrap);
+      setStep(3);
+      statusMsg.textContent = 'Submitting file...';
+
+      try{
+        const res = await fetch('/api/send-submission', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Submission failed.');
+        statusMsg.textContent = 'Submission sent successfully.';
+      }catch(err){
+        statusMsg.textContent = `Submission failed: ${err.message}`;
+      }
+    }
+
+    submissionType.addEventListener('change', ()=>{
+      handleSections();
+      handleConditionalLogic();
+      setStep(1);
+    });
+
+    [
+      'refiMiType','refiDebtExcluded','refiPastClientCredit','refiRecast','refiPricedUnder','refiPricingReason',
+      'purchaseMiType','purchaseDebtExcluded','dominoClosing','purchaseDisclosure','purchaseRecast',
+      'purchasePricedUnder','purchasePricingReason','purchaseClosingReview'
+    ].forEach(id => $(id).addEventListener('change', handleConditionalLogic));
+
+    document.querySelectorAll('input[name="cashSource"]').forEach(el=>{
+      el.addEventListener('change', handleConditionalLogic);
+    });
+
+    $('reviewBtn').addEventListener('click', reviewSubmission);
+    $('reviewBtnSide').addEventListener('click', reviewSubmission);
+    $('submitBtn').addEventListener('click', submitFile);
+    $('submitBtnSide').addEventListener('click', submitFile);
+    $('editBtn').addEventListener('click', ()=>{
+      hide(reviewWrap);
+      setStep(1);
+      statusMsg.textContent = 'Returned to editing mode.';
+    });
+
+    attachCurrencyFormatting();
+    handleSections();
+    handleConditionalLogic();
+  </script>
 </body>
 </html>
-
