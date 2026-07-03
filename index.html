@@ -6,7 +6,7 @@
   <title>ZMG Loan Submission Portal</title>
   <style>
     :root{
-      --bg:#f6f8fb;
+      --bg:#f4f7fb;
       --card:#ffffff;
       --text:#17212b;
       --muted:#667085;
@@ -15,7 +15,9 @@
       --accent-2:#0b4f54;
       --accent-soft:#e7f3f4;
       --danger:#b42318;
+      --success:#166534;
       --radius:16px;
+      --radius-lg:22px;
       --shadow:0 10px 30px rgba(16,24,40,.08);
     }
     *{box-sizing:border-box}
@@ -28,29 +30,34 @@
       line-height:1.45;
     }
     .container{
-      max-width:1180px;
+      max-width:1200px;
       margin:0 auto;
       padding:24px;
     }
     .hero{
       background:linear-gradient(180deg,#fff,#f7fbfb);
       border:1px solid var(--line);
-      border-radius:22px;
+      border-radius:var(--radius-lg);
       box-shadow:var(--shadow);
       padding:28px;
       margin-bottom:22px;
     }
     .hero-head{
       display:flex;
-      flex-direction:column;
-      align-items:flex-start;
-      gap:16px;
+      align-items:center;
+      gap:18px;
+      flex-wrap:wrap;
     }
     .hero-logo{
-      height:56px;
-      max-width:220px;
+      height:64px;
       width:auto;
+      max-width:240px;
       object-fit:contain;
+      display:block;
+    }
+    .hero-copy{
+      min-width:280px;
+      flex:1;
     }
     .hero h1{
       margin:0 0 8px 0;
@@ -61,7 +68,7 @@
     .hero p{
       margin:0;
       color:var(--muted);
-      max-width:760px;
+      max-width:780px;
       font-size:16px;
     }
     .progress{
@@ -82,11 +89,11 @@
       background:var(--accent-soft);
       color:var(--accent-2);
       border-color:#b6d7da;
-      font-weight:600;
+      font-weight:700;
     }
     .layout{
       display:grid;
-      grid-template-columns:1fr 320px;
+      grid-template-columns:minmax(0,1fr) 330px;
       gap:22px;
       align-items:start;
     }
@@ -171,11 +178,12 @@
       height:18px;
       margin-top:1px;
       padding:0;
+      flex:0 0 auto;
     }
     .hidden{display:none !important}
     .error{
       border-color:#f2b8b5 !important;
-      background:#fff8f7;
+      background:#fff8f7 !important;
     }
     .error-text{
       color:var(--danger);
@@ -191,7 +199,7 @@
     }
     .summary-box h4{
       margin:0 0 10px 0;
-      font-size:15px;
+      font-size:16px;
     }
     .summary-section{
       border-top:1px solid #e7eef4;
@@ -207,7 +215,7 @@
       display:grid;
       grid-template-columns:220px 1fr;
       gap:14px;
-      padding:5px 0;
+      padding:6px 0;
     }
     .summary-row strong{
       color:#344054;
@@ -239,6 +247,7 @@
       font-weight:700;
       cursor:pointer;
       transition:.15s ease;
+      min-height:44px;
     }
     .btn-primary{
       background:var(--accent);
@@ -257,6 +266,8 @@
       color:var(--muted);
       min-height:20px;
     }
+    .status.success{color:var(--success);font-weight:600}
+    .status.error-text-inline{color:var(--danger);font-weight:600}
     .review-wrap{
       border-top:1px solid var(--line);
       margin-top:18px;
@@ -265,7 +276,7 @@
     .footer-actions{
       position:sticky;
       bottom:0;
-      background:linear-gradient(180deg,rgba(246,248,251,0),rgba(246,248,251,1) 35%);
+      background:linear-gradient(180deg,rgba(244,247,251,0),rgba(244,247,251,1) 35%);
       padding-top:16px;
       margin-top:16px;
     }
@@ -291,7 +302,8 @@
       .summary-row{grid-template-columns:1fr}
       .container{padding:16px}
       .hero,.card{padding:18px}
-      .hero-logo{height:48px}
+      .hero-head{align-items:flex-start}
+      .hero-logo{height:52px}
     }
   </style>
 </head>
@@ -300,7 +312,7 @@
     <header class="hero">
       <div class="hero-head">
         <img src="/logo.png" alt="ZMG Logo" class="hero-logo" />
-        <div>
+        <div class="hero-copy">
           <h1>ZMG Loan Submission Portal</h1>
           <p>Complete the appropriate submission checklist before sending the file to the team.</p>
         </div>
@@ -324,10 +336,10 @@
                 <label for="loanTeam">Loan Officer / Team <span class="req">*</span></label>
                 <select id="loanTeam" name="loanTeam" required>
                   <option value="">Select team</option>
-                  <option>Steven Zin</option>
-                  <option>Teresa Clark</option>
-                  <option>Cari LaMere</option>
-                  <option>Chasten Gerhart</option>
+                  <option value="Steven Zin">Steven Zin</option>
+                  <option value="Teresa Clark">Teresa Clark</option>
+                  <option value="Cari LaMere">Cari LaMere</option>
+                  <option value="Chasten Gerhart">Chasten Gerhart</option>
                 </select>
               </div>
 
@@ -338,11 +350,6 @@
                   <option value="Purchase">Purchase</option>
                   <option value="Refinance">Refinance</option>
                 </select>
-              </div>
-
-              <div class="field">
-                <label for="loanOfficer">Loan Officer <span class="req">*</span></label>
-                <input id="loanOfficer" name="loanOfficer" type="text" required />
               </div>
 
               <div class="field">
@@ -366,9 +373,9 @@
               </div>
 
               <div class="field full">
-                <label for="emailSubmissionTo">Email Submission To <span class="req">*</span></label>
-                <input id="emailSubmissionTo" name="emailSubmissionTo" type="text" required placeholder="This will auto-fill based on selected team" readonly />
-                <div class="hint">Recipients are assigned automatically from the selected Loan Officer / Team.</div>
+                <label for="emailRecipientsDisplay">Email Recipients</label>
+                <input id="emailRecipientsDisplay" name="emailRecipientsDisplay" type="text" readonly />
+                <div class="hint">Recipients are assigned automatically based on the selected Loan Officer / Team.</div>
               </div>
 
               <div class="field full">
@@ -391,8 +398,8 @@
                   <label for="refiType">Refi Type <span class="req">*</span></label>
                   <select id="refiType" name="refiType" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Cash Out</option>
-                    <option>No Cash Out</option>
+                    <option value="Cash Out">Cash Out</option>
+                    <option value="No Cash Out">No Cash Out</option>
                   </select>
                 </div>
 
@@ -410,10 +417,10 @@
                   <label for="skipPayments">Skipping 1 or 2 Payments? <span class="req">*</span></label>
                   <select id="skipPayments" name="skipPayments" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>0</option>
-                    <option>1</option>
-                    <option>2</option>
-                    <option>N/A</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -426,9 +433,9 @@
                   <label for="netTangibleBenefit">Is Net Tangible Benefit Filled Out in Encompass? <span class="req">*</span></label>
                   <select id="netTangibleBenefit" name="netTangibleBenefit" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -436,9 +443,9 @@
                   <label for="deductEscrows">Deduct Escrows from Payoff? <span class="req">*</span></label>
                   <select id="deductEscrows" name="deductEscrows" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
               </div>
@@ -451,9 +458,9 @@
                   <label for="refiMiType">MI Type <span class="req">*</span></label>
                   <select id="refiMiType" name="refiMiType" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Monthly</option>
-                    <option>Single Premium</option>
-                    <option>N/A</option>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Single Premium">Single Premium</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
                 <div class="field hidden" id="refiMiAmountWrap">
@@ -474,9 +481,9 @@
                   <label for="refiDebtExcluded">Are any debts being excluded? <span class="req">*</span></label>
                   <select id="refiDebtExcluded" name="refiDebtExcluded" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -502,9 +509,9 @@
                   <label for="refiAppraisalType">Order Appraisal or PIW? <span class="req">*</span></label>
                   <select id="refiAppraisalType" name="refiAppraisalType" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Order Appraisal</option>
-                    <option>PIW</option>
-                    <option>N/A</option>
+                    <option value="Order Appraisal">Order Appraisal</option>
+                    <option value="PIW">PIW</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
                 <div class="field full">
@@ -521,8 +528,8 @@
                   <label for="refiDisclosure">Disclose as Floating or Locked? <span class="req">*</span></label>
                   <select id="refiDisclosure" name="refiDisclosure" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Floating</option>
-                    <option>Locked</option>
+                    <option value="Floating">Floating</option>
+                    <option value="Locked">Locked</option>
                   </select>
                 </div>
                 <div class="field">
@@ -533,9 +540,9 @@
                   <label for="refiStandardOrigination">Standard Origination Charge? <span class="req">*</span></label>
                   <select id="refiStandardOrigination" name="refiStandardOrigination" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
                 <div class="field">
@@ -546,8 +553,8 @@
                   <label for="refiPastClientCredit">Past Client Credit? <span class="req">*</span></label>
                   <select id="refiPastClientCredit" name="refiPastClientCredit" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
                   </select>
                 </div>
                 <div class="field hidden" id="refiPastClientCreditAmountWrap">
@@ -564,9 +571,9 @@
                   <label for="refiRecast">Will this loan be recast? <span class="req">*</span></label>
                   <select id="refiRecast" name="refiRecast" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -580,9 +587,9 @@
                       <label for="refiWrittenCommitment">Do we have written commitment from the client that they will make the required amount of payments to avoid issues when recasting? <span class="req">*</span></label>
                       <select id="refiWrittenCommitment" name="refiWrittenCommitment" class="conditional-required" data-visible-required="refiRecastDetails">
                         <option value="">Select</option>
-                        <option>Yes</option>
-                        <option>No</option>
-                        <option>N/A</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
                       </select>
                       <div class="hint">Written client commitment must be saved in the file.</div>
                     </div>
@@ -598,9 +605,9 @@
                   <label for="refiPricedUnder">Is Loan Priced Under 99.5? <span class="req">*</span></label>
                   <select id="refiPricedUnder" name="refiPricedUnder" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -614,9 +621,9 @@
                       <label for="refiPricingReason">Reason <span class="req">*</span></label>
                       <select id="refiPricingReason" name="refiPricingReason" class="conditional-required" data-visible-required="refiPricingDetails">
                         <option value="">Select</option>
-                        <option>Competitive</option>
-                        <option>Benefit</option>
-                        <option>N/A</option>
+                        <option value="Competitive">Competitive</option>
+                        <option value="Benefit">Benefit</option>
+                        <option value="N/A">N/A</option>
                       </select>
                     </div>
 
@@ -648,9 +655,9 @@
                   <label for="refiPricingLogged">Has Pricing Been Logged into Jungo? <span class="req">*</span></label>
                   <select id="refiPricingLogged" name="refiPricingLogged" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
               </div>
@@ -663,15 +670,15 @@
                   <label for="refiLeadSourceType">Lead Source Type <span class="req">*</span></label>
                   <select id="refiLeadSourceType" name="refiLeadSourceType" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Self</option>
+                    <option value="Self">Self</option>
                   </select>
                 </div>
                 <div class="field">
                   <label for="refiLeadChannel">Lead Channel <span class="req">*</span></label>
                   <select id="refiLeadChannel" name="refiLeadChannel" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Existing Customer</option>
-                    <option>Broker</option>
+                    <option value="Existing Customer">Existing Customer</option>
+                    <option value="Broker">Broker</option>
                   </select>
                 </div>
               </div>
@@ -684,8 +691,8 @@
                   <label for="refiClosingReview">Closing Review Appointment Set Up? <span class="req">*</span></label>
                   <select id="refiClosingReview" name="refiClosingReview" data-required-when="Refinance">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
                   </select>
                 </div>
 
@@ -714,10 +721,10 @@
                   <label for="purchaseAppraisalType">Order Appraisal or PIW <span class="req">*</span></label>
                   <select id="purchaseAppraisalType" name="purchaseAppraisalType" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Order Appraisal</option>
-                    <option>PIW with LP and DU</option>
-                    <option>PIW</option>
-                    <option>N/A</option>
+                    <option value="Order Appraisal">Order Appraisal</option>
+                    <option value="PIW with LP and DU">PIW with LP and DU</option>
+                    <option value="PIW">PIW</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -735,9 +742,9 @@
                   <label for="purchaseMiType">MI Type <span class="req">*</span></label>
                   <select id="purchaseMiType" name="purchaseMiType" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Monthly MI</option>
-                    <option>Single Premium MI</option>
-                    <option>N/A</option>
+                    <option value="Monthly MI">Monthly MI</option>
+                    <option value="Single Premium MI">Single Premium MI</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
                 <div class="field hidden" id="purchaseMiAmountWrap">
@@ -752,7 +759,7 @@
               <div class="grid">
                 <div class="field full">
                   <label>Cash to Close Coming From <span class="req">*</span></label>
-                  <div class="checkbox-grid" id="cashSourceList">
+                  <div class="checkbox-grid">
                     <label class="check"><input type="checkbox" name="cashSource" value="Bank Account"> Bank Account</label>
                     <label class="check"><input type="checkbox" name="cashSource" value="Retirement Account"> Retirement Account</label>
                     <label class="check"><input type="checkbox" name="cashSource" value="Proceeds from Sale of Property"> Proceeds from Sale of Property</label>
@@ -787,9 +794,9 @@
                   <label for="purchaseDebtExcluded">Are any debts being excluded? <span class="req">*</span></label>
                   <select id="purchaseDebtExcluded" name="purchaseDebtExcluded" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -815,9 +822,9 @@
                   <label for="dominoClosing">Domino Closing? <span class="req">*</span></label>
                   <select id="dominoClosing" name="dominoClosing" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -835,8 +842,8 @@
                   <label for="purchaseDisclosure">Disclose as Floating or Locked? <span class="req">*</span></label>
                   <select id="purchaseDisclosure" name="purchaseDisclosure" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Floating</option>
-                    <option selected>Locked</option>
+                    <option value="Floating">Floating</option>
+                    <option value="Locked" selected>Locked</option>
                   </select>
                 </div>
 
@@ -844,9 +851,9 @@
                   <label for="purchaseFloatDown">Float Down Eligible? <span class="req">*</span></label>
                   <select id="purchaseFloatDown" name="purchaseFloatDown" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
               </div>
@@ -864,9 +871,9 @@
                   <label for="purchaseStandardOrigination">Standard Origination Charge? <span class="req">*</span></label>
                   <select id="purchaseStandardOrigination" name="purchaseStandardOrigination" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -884,9 +891,9 @@
                   <label for="purchaseRecast">Will this loan be recast? <span class="req">*</span></label>
                   <select id="purchaseRecast" name="purchaseRecast" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -904,9 +911,9 @@
                   <label for="purchasePricedUnder">Is Loan Priced Under 99.5? <span class="req">*</span></label>
                   <select id="purchasePricedUnder" name="purchasePricedUnder" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -921,9 +928,9 @@
                       <label for="purchasePricingReason">Reason <span class="req">*</span></label>
                       <select id="purchasePricingReason" name="purchasePricingReason" class="conditional-required" data-visible-required="purchasePricingDetails">
                         <option value="">Select</option>
-                        <option>Competitive</option>
-                        <option>Benefit</option>
-                        <option>N/A</option>
+                        <option value="Competitive">Competitive</option>
+                        <option value="Benefit">Benefit</option>
+                        <option value="N/A">N/A</option>
                       </select>
                     </div>
 
@@ -945,9 +952,9 @@
                           <label for="purchaseQuoteIncluded">Quote Document or Email Included? <span class="req">*</span></label>
                           <select id="purchaseQuoteIncluded" name="purchaseQuoteIncluded" class="conditional-required" data-visible-required="purchaseCompetitiveWrap">
                             <option value="">Select</option>
-                            <option>Yes</option>
-                            <option>No</option>
-                            <option>N/A</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="N/A">N/A</option>
                           </select>
                           <div class="hint">If competitive pricing is being used, include the quote document or email when available. If not available, choose N/A.</div>
                         </div>
@@ -965,9 +972,9 @@
                   <label for="purchasePricingLogged">Has Pricing Been Logged into Jungo? <span class="req">*</span></label>
                   <select id="purchasePricingLogged" name="purchasePricingLogged" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
               </div>
@@ -980,15 +987,15 @@
                   <label for="purchaseLeadSourceType">Lead Source Type <span class="req">*</span></label>
                   <select id="purchaseLeadSourceType" name="purchaseLeadSourceType" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Self</option>
+                    <option value="Self">Self</option>
                   </select>
                 </div>
                 <div class="field">
                   <label for="purchaseLeadChannel">Lead Channel <span class="req">*</span></label>
                   <select id="purchaseLeadChannel" name="purchaseLeadChannel" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Existing Customer</option>
-                    <option>Broker</option>
+                    <option value="Existing Customer">Existing Customer</option>
+                    <option value="Broker">Broker</option>
                   </select>
                 </div>
               </div>
@@ -1001,9 +1008,9 @@
                   <label for="purchaseFthbStatus">Is Borrower’s FTHB Status Showing Correctly in Encompass? <span class="req">*</span></label>
                   <select id="purchaseFthbStatus" name="purchaseFthbStatus" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
 
@@ -1011,9 +1018,9 @@
                   <label for="preferredContact">Preferred Method of Contact <span class="req">*</span></label>
                   <select id="preferredContact" name="preferredContact" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Email</option>
-                    <option>Text</option>
-                    <option>Call</option>
+                    <option value="Email">Email</option>
+                    <option value="Text">Text</option>
+                    <option value="Call">Call</option>
                   </select>
                 </div>
 
@@ -1021,9 +1028,9 @@
                   <label for="servicingLinkAdded">If Locked, is the Servicing Link Added to Mobile App? <span class="req">*</span></label>
                   <select id="servicingLinkAdded" name="servicingLinkAdded" class="conditional-required" data-visible-required="servicingLinkWrap">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>N/A</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="N/A">N/A</option>
                   </select>
                 </div>
               </div>
@@ -1036,8 +1043,8 @@
                   <label for="purchaseClosingReview">Closing Review Appointment Set Up? <span class="req">*</span></label>
                   <select id="purchaseClosingReview" name="purchaseClosingReview" data-required-when="Purchase">
                     <option value="">Select</option>
-                    <option>Yes</option>
-                    <option>No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
                   </select>
                 </div>
 
@@ -1076,7 +1083,7 @@
         <div class="card sidebar-card">
           <h3>Submission Notes</h3>
           <p>Only the selected checklist appears. Required fields change automatically based on visible questions and conditional responses.</p>
-          <p>Recipients are assigned automatically based on the selected Loan Officer / Team and also validated again in the backend.</p>
+          <p>The frontend shows recipients for convenience, but the backend securely determines the final email routing from the selected team. [web:126]</p>
           <div class="footer-actions">
             <div class="btn-row">
               <button type="button" class="btn-primary" id="reviewBtnSide">Review Submission</button>
@@ -1099,7 +1106,7 @@
     const refinanceSection = $('refinanceSection');
     const purchaseSection = $('purchaseSection');
     const loanTeam = $('loanTeam');
-    const emailSubmissionTo = $('emailSubmissionTo');
+    const emailRecipientsDisplay = $('emailRecipientsDisplay');
     const routePreview = $('routePreview');
 
     const emailRoutes = {
@@ -1114,8 +1121,8 @@
       document.querySelector(`.pill[data-step="${step}"]`)?.classList.add('active');
     }
 
-    function show(el){ el.classList.remove('hidden'); }
-    function hide(el){ el.classList.add('hidden'); }
+    function show(el){ if (el) el.classList.remove('hidden'); }
+    function hide(el){ if (el) el.classList.add('hidden'); }
 
     function isVisible(el){
       return !!(el && el.offsetParent !== null && !el.classList.contains('hidden'));
@@ -1124,12 +1131,16 @@
     function formatCurrencyValue(v){
       const raw = String(v || '').trim();
       if (!raw) return '';
-      if (/^n\\/a$/i.test(raw)) return 'N/A';
+      if (/^n\/a$/i.test(raw)) return 'N/A';
       const cleaned = raw.replace(/[$,]/g,'');
       if (cleaned === '') return '';
       if (isNaN(cleaned)) return raw;
       const num = Number(cleaned);
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(num);
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 2
+      }).format(num);
     }
 
     function attachCurrencyFormatting(){
@@ -1137,7 +1148,10 @@
         input.addEventListener('blur', ()=>{
           const value = input.value.trim();
           if (!value) return;
-          if (/^n\\/a$/i.test(value)) { input.value = 'N/A'; return; }
+          if (/^n\/a$/i.test(value)) {
+            input.value = 'N/A';
+            return;
+          }
           input.value = formatCurrencyValue(value);
         });
       });
@@ -1147,10 +1161,14 @@
       form.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
       form.querySelectorAll('.error-text.dynamic').forEach(el => el.remove());
       $('cashSourceError').classList.add('hidden');
+      statusMsg.classList.remove('success','error-text-inline');
     }
 
     function addError(input, msg){
+      if (!input) return;
       input.classList.add('error');
+      const existing = input.parentNode.querySelector('.error-text.dynamic');
+      if (existing) existing.remove();
       const div = document.createElement('div');
       div.className = 'error-text dynamic';
       div.textContent = msg;
@@ -1158,15 +1176,15 @@
     }
 
     function selectedCashSources(){
-      return [...document.querySelectorAll('input[name="cashSource"]:checked')].map(el=>el.value);
+      return [...document.querySelectorAll('input[name="cashSource"]:checked')].map(el => el.value);
     }
 
     function updateRoutePreview(){
       const selectedTeam = loanTeam.value;
       const recipients = emailRoutes[selectedTeam] || [];
-      emailSubmissionTo.value = recipients.join(', ');
+      emailRecipientsDisplay.value = recipients.join(', ');
       routePreview.innerHTML = recipients.length
-        ? `<strong>Email Recipients</strong>${recipients.join('<br>')}`
+        ? `<strong>Email Recipients</strong>${recipients.map(r => escapeHtml(r)).join('<br>')}`
         : `<strong>Email Recipients</strong>Select a Loan Officer / Team to display the automatic routing.`;
     }
 
@@ -1177,7 +1195,7 @@
     }
 
     function handleConditionalLogic(){
-      $('refiMiType').value === 'Monthly' || $('refiMiType').value === 'Single Premium'
+      (($('refiMiType').value === 'Monthly') || ($('refiMiType').value === 'Single Premium'))
         ? show($('refiMiAmountWrap')) : hide($('refiMiAmountWrap'));
 
       $('refiDebtExcluded').value === 'Yes'
@@ -1198,10 +1216,10 @@
       $('refiPricingReason').value === 'Benefit'
         ? show($('refiBenefitWrap')) : hide($('refiBenefitWrap'));
 
-      $('purchaseMiType').value === 'Monthly MI' || $('purchaseMiType').value === 'Single Premium MI'
+      (($('purchaseMiType').value === 'Monthly MI') || ($('purchaseMiType').value === 'Single Premium MI'))
         ? show($('purchaseMiAmountWrap')) : hide($('purchaseMiAmountWrap'));
 
-      document.querySelector('#cashSourceOtherCheck').checked
+      $('cashSourceOtherCheck').checked
         ? show($('otherCashSourceWrap')) : hide($('otherCashSourceWrap'));
 
       $('purchaseDebtExcluded').value === 'Yes'
@@ -1231,8 +1249,7 @@
 
     function fieldValue(id){
       const el = $(id);
-      if (!el) return '';
-      return el.value?.trim() || '';
+      return el ? (el.value || '').trim() : '';
     }
 
     function buildData(){
@@ -1243,13 +1260,11 @@
         general: {
           loanTeam: selectedTeam,
           submissionType: fieldValue('submissionType'),
-          loanOfficer: fieldValue('loanOfficer'),
           borrowerName: fieldValue('borrowerName'),
           propertyAddress: fieldValue('propertyAddress'),
           loanNumber: fieldValue('loanNumber'),
           submittedBy: fieldValue('submittedBy'),
-          emailSubmissionTo: fieldValue('emailSubmissionTo'),
-          emailRecipients: recipients.join(', ')
+          emailRecipients: recipients
         },
         refinance: {},
         purchase: {}
@@ -1347,19 +1362,8 @@
         .replace(/^./, s => s.toUpperCase());
     }
 
-    function renderSection(title, obj){
-      const rows = Object.entries(obj)
-        .filter(([,v]) => Array.isArray(v) ? v.length : String(v || '').trim())
-        .map(([k,v]) => {
-          const val = Array.isArray(v) ? v.join(', ') : v;
-          return `<div class="summary-row"><strong>${prettyLabel(k)}</strong><div>${escapeHtml(String(val)).replace(/\\n/g,'<br>')}</div></div>`;
-        }).join('');
-
-      return `<div class="summary-section"><h4>${title}</h4>${rows || '<div class="summary-row"><strong>No data</strong><div>None entered.</div></div>'}</div>`;
-    }
-
     function escapeHtml(str){
-      return str
+      return String(str)
         .replace(/&/g,'&amp;')
         .replace(/</g,'&lt;')
         .replace(/>/g,'&gt;')
@@ -1367,11 +1371,38 @@
         .replace(/'/g,'&#039;');
     }
 
+    function renderSection(title, obj){
+      const rows = Object.entries(obj)
+        .filter(([,v]) => Array.isArray(v) ? v.length : String(v || '').trim())
+        .map(([k,v]) => {
+          const val = Array.isArray(v) ? v.join(', ') : v;
+          return `<div class="summary-row"><strong>${prettyLabel(k)}</strong><div>${escapeHtml(String(val)).replace(/\n/g,'<br>')}</div></div>`;
+        })
+        .join('');
+
+      return `<div class="summary-section"><h4>${title}</h4>${rows || '<div class="summary-row"><strong>No data</strong><div>None entered.</div></div>'}</div>`;
+    }
+
     function renderSummary(data){
       let html = '';
-      html += renderSection('General Information', data.general);
-      if (data.general.submissionType === 'Refinance') html += renderSection('Refinance Submission Checklist', data.refinance);
-      if (data.general.submissionType === 'Purchase') html += renderSection('Purchase Submission Checklist', data.purchase);
+      html += renderSection('General Information', {
+        loanOfficerTeam: data.general.loanTeam,
+        submissionType: data.general.submissionType,
+        borrowerName: data.general.borrowerName,
+        propertyAddress: data.general.propertyAddress,
+        loanNumber: data.general.loanNumber,
+        submittedBy: data.general.submittedBy,
+        emailRecipients: data.general.emailRecipients
+      });
+
+      if (data.general.submissionType === 'Refinance'){
+        html += renderSection('Refinance Submission Checklist', data.refinance);
+      }
+
+      if (data.general.submissionType === 'Purchase'){
+        html += renderSection('Purchase Submission Checklist', data.purchase);
+      }
+
       summaryBox.innerHTML = html;
     }
 
@@ -1386,14 +1417,12 @@
       const baseRequired = [
         'loanTeam',
         'submissionType',
-        'loanOfficer',
         'borrowerName',
         'propertyAddress',
-        'submittedBy',
-        'emailSubmissionTo'
+        'submittedBy'
       ];
 
-      baseRequired.forEach(id=>{
+      baseRequired.forEach(id => {
         const el = $(id);
         if (!fieldValue(id)){
           addError(el, 'This field is required.');
@@ -1401,19 +1430,19 @@
         }
       });
 
-      if (!emailRoutes[fieldValue('loanTeam')]) {
+      if (!emailRoutes[fieldValue('loanTeam')]){
         addError($('loanTeam'), 'Select a valid Loan Officer / Team.');
         valid = false;
       }
 
-      form.querySelectorAll('[data-required-when]').forEach(el=>{
+      form.querySelectorAll('[data-required-when]').forEach(el => {
         if (el.getAttribute('data-required-when') === type && !fieldValue(el.id)){
           addError(el, 'This field is required.');
           valid = false;
         }
       });
 
-      form.querySelectorAll('.conditional-required').forEach(el=>{
+      form.querySelectorAll('.conditional-required').forEach(el => {
         const wrapId = el.getAttribute('data-visible-required');
         const wrap = $(wrapId);
         if (isVisible(wrap) && !fieldValue(el.id)){
@@ -1429,9 +1458,11 @@
 
       if (!valid){
         statusMsg.textContent = 'Please complete the required fields before continuing.';
+        statusMsg.classList.add('error-text-inline');
         setStep(1);
       } else {
         statusMsg.textContent = '';
+        statusMsg.classList.remove('error-text-inline');
       }
 
       return valid;
@@ -1444,7 +1475,7 @@
       show(reviewWrap);
       setStep(2);
       statusMsg.textContent = 'Review your submission below, then click Submit File.';
-      reviewWrap.scrollIntoView({behavior:'smooth', block:'start'});
+      reviewWrap.scrollIntoView({ behavior:'smooth', block:'start' });
     }
 
     async function submitFile(){
@@ -1455,22 +1486,27 @@
       show(reviewWrap);
       setStep(3);
       statusMsg.textContent = 'Submitting file...';
+      statusMsg.classList.remove('error-text-inline','success');
 
       try{
         const res = await fetch('/api/send-submission', {
           method:'POST',
-          headers:{'Content-Type':'application/json'},
+          headers:{ 'Content-Type':'application/json' },
           body: JSON.stringify(data)
         });
+
         const result = await res.json();
         if (!res.ok) throw new Error(result.error || 'Submission failed.');
+
         statusMsg.textContent = 'Submission sent successfully.';
+        statusMsg.classList.add('success');
       }catch(err){
         statusMsg.textContent = `Submission failed: ${err.message}`;
+        statusMsg.classList.add('error-text-inline');
       }
     }
 
-    submissionType.addEventListener('change', ()=>{
+    submissionType.addEventListener('change', () => {
       handleSections();
       handleConditionalLogic();
       setStep(1);
@@ -1482,9 +1518,11 @@
       'refiMiType','refiDebtExcluded','refiPastClientCredit','refiRecast','refiPricedUnder','refiPricingReason',
       'purchaseMiType','purchaseDebtExcluded','dominoClosing','purchaseDisclosure','purchaseRecast',
       'purchasePricedUnder','purchasePricingReason','purchaseClosingReview'
-    ].forEach(id => $(id).addEventListener('change', handleConditionalLogic));
+    ].forEach(id => {
+      $(id).addEventListener('change', handleConditionalLogic);
+    });
 
-    document.querySelectorAll('input[name="cashSource"]').forEach(el=>{
+    document.querySelectorAll('input[name="cashSource"]').forEach(el => {
       el.addEventListener('change', handleConditionalLogic);
     });
 
@@ -1492,10 +1530,11 @@
     $('reviewBtnSide').addEventListener('click', reviewSubmission);
     $('submitBtn').addEventListener('click', submitFile);
     $('submitBtnSide').addEventListener('click', submitFile);
-    $('editBtn').addEventListener('click', ()=>{
+    $('editBtn').addEventListener('click', () => {
       hide(reviewWrap);
       setStep(1);
       statusMsg.textContent = 'Returned to editing mode.';
+      statusMsg.classList.remove('error-text-inline','success');
     });
 
     attachCurrencyFormatting();
