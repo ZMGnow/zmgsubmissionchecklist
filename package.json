@@ -1,7 +1,9 @@
 {
-  "name": "zmgsubmissionchecklist",
+  "name": "zmg-loan-submission-portal",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "ZMG Loan Submission Portal for Refinance and Purchase submission checklists",
   "dependencies": {
     "nodemailer": "^6.9.16"
   }
