@@ -5,6 +5,8 @@
   "type": "module",
   "description": "ZMG Loan Submission Portal for Refinance and Purchase submission checklists",
   "dependencies": {
-    "nodemailer": "^6.9.16"
+    "nodemailer": "^6.9.16",
+    "@vercel/functions": "^1.6.0",
+    "jose": "^5.9.6"
   }
 }
