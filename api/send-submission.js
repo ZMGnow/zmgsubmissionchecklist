@@ -80,6 +80,7 @@ function htmlSection(title, data) {
 }
 
 export default async function handler(req, res) {
+  return res.status(423).json({ error: "OUTBOUND_EMAIL_PAUSED: All app email is paused for the CCM transition." });
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
