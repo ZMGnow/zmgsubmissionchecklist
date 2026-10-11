@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { sendEmail, MISSING_API_KEY_ERROR } from './_resend.js';
 
 function safe(value) {
   if (value === undefined || value === null) return '';
@@ -127,20 +127,9 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      // Vercel best practice: require environment variables for SMTP credentials. [web:129]
-      return res.status(500).json({
-        error: 'SMTP environment variables (SMTP_USER / SMTP_PASS) are missing in Vercel.'
-      });
+    if (!process.env.RESEND_API_KEY) {
+      return res.status(500).json({ error: MISSING_API_KEY_ERROR });
     }
-
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    });
 
     const subject = `ZMG Loan Submission - ${submissionType} - ${loanTeam} - ${borrowerName}`;
 
@@ -188,13 +177,11 @@ export default async function handler(req, res) {
       </div>
     `;
 
-    await transporter.sendMail({
-      from: process.env.SMTP_USER,
-      to: recipients.join(','),
+    await sendEmail({
+      to: recipients,
       subject,
       text: emailText,
-      html: emailHtml,
-      replyTo: process.env.SMTP_USER
+      html: emailHtml
     });
 
     return res.status(200).json({
