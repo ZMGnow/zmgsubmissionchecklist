@@ -38,7 +38,7 @@ function parseEmails(value) {
 // Frontend may display recipients, but backend enforces the final routing.
 const emailRoutes = {
   'Steven Zin': ['Loanprocessing@zmgnow.com', 'zinteam@zmgnow.com'],
-  'Teresa Clark': ['Loanprocessing@zmgnow.com', 'teamclark@tdcmtg.com'],
+  'Teresa Clark': ['Loanprocessing@zmgnow.com', 'tdcteam@ccm.com'],
   'Cari LaMere': ['Loanprocessing@zmgnow.com', 'lamereteam@zmgnow.com'],
   'Chasten Gerhart': ['Loanprocessing@zmgnow.com', 'chastenteam@zmgnow.com']
 };
