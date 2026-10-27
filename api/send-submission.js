@@ -1,4 +1,35 @@
+import { jwtVerify } from 'jose';
 import { sendEmail, MISSING_API_KEY_ERROR } from './_resend.js';
+
+// Second layer behind middleware.js:
+// only ZMG staff signed in with Salesforce may send a submission. Staff pass =
+// role "employee" plus the Salesforce user id ("005...") the Auth Hub adds only
+// on a Salesforce sign-in.
+const SF_USER_ID_RE = /^005[a-zA-Z0-9]{12}(?:[a-zA-Z0-9]{3})?$/;
+
+function readSessionCookie(req) {
+  const header = req.headers?.cookie || '';
+  for (const part of header.split(';')) {
+    const idx = part.indexOf('=');
+    if (idx !== -1 && part.slice(0, idx).trim() === 'zmg_session') {
+      return decodeURIComponent(part.slice(idx + 1).trim());
+    }
+  }
+  return null;
+}
+
+export async function isSalesforceStaff(req) {
+  const token = readSessionCookie(req);
+  const secret = process.env.AUTH_JWT_SECRET;
+  if (!token || !secret) return false;
+  try {
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), { algorithms: ['HS256'] });
+    return payload.purpose === 'session' && payload.role === 'employee' &&
+      SF_USER_ID_RE.test(String(payload.sf_user_id || ''));
+  } catch {
+    return false;
+  }
+}
 
 function safe(value) {
   if (value === undefined || value === null) return '';
@@ -82,6 +113,10 @@ function htmlSection(title, data) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (!(await isSalesforceStaff(req))) {
+    return res.status(401).json({ code: 'salesforce_required', error: 'Sign in to ZMG with Salesforce to send a submission.' });
   }
 
   try {
