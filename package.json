@@ -1,6 +1,9 @@
 {
   "name": "zmg-loan-submission-portal",
   "version": "1.0.0",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
   "private": true,
   "type": "module",
   "description": "ZMG Loan Submission Portal for Refinance and Purchase submission checklists",
