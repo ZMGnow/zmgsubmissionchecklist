@@ -21,7 +21,7 @@ import { jwtVerify, SignJWT } from "jose";
 import { next } from "@vercel/functions";
 
 // Who may use this app. EDIT PER APP.
-const ALLOWED_ROLES = ["employee"];
+const ALLOWED_ROLES = ["employee", "realtor", "client", "guest"];
 
 const COOKIE_NAME = "zmg_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400; // 400 days

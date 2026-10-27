@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { SignJWT } from 'jose';
 
-process.env.AUTH_JWT_SECRET = 'test-secret-for-login-gate-only';
+process.env.AUTH_JWT_SECRET = 'test-secret-for-login-gate-only-0123456789';
 process.env.AUTH_HUB_URL = 'https://auth-hub.example';
 const { default: middleware } = await import('../middleware.js');
-const STAFF_ONLY = true; // this app is staff-only (ALLOWED_ROLES = ["employee"])
+const STAFF_ONLY = false; // realtors, clients and guests keep the access they had before the lockdown
 const key = new TextEncoder().encode(process.env.AUTH_JWT_SECRET);
 const sign = (claims) => new SignJWT(claims).setProtectedHeader({ alg: 'HS256' }).setIssuedAt().setExpirationTime('1h').sign(key);
 const page = (cookie, path = '/') => new Request(`https://app.example${path}`, { headers: cookie ? { cookie: `zmg_session=${cookie}` } : {} });
@@ -83,9 +83,3 @@ test('send-submission API refuses non-Salesforce sessions', async () => {
   assert.equal(ok.statusCode, 400);
 });
 
-test('realtor on this staff-only tool gets a staff-only page, not a redirect loop', async () => {
-  const res = await middleware(page(await sign({ email: 'a@x.com', purpose: 'session', role: 'realtor' })));
-  assert.equal(res.status, 403);
-  const tok = await sign({ email: 'a@x.com', purpose: 'exchange', role: 'guest' });
-  assert.equal((await middleware(page(null, `/?zmg_token=${tok}`))).status, 403);
-});
