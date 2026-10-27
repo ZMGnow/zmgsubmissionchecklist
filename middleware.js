@@ -28,7 +28,11 @@ const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400; // 400 days
 const SF_USER_ID = /^005[a-zA-Z0-9]{12}(?:[a-zA-Z0-9]{3})?$/;
 
 function secretKey() {
-  return new TextEncoder().encode(process.env.AUTH_JWT_SECRET);
+  // Never verify with a blank/short secret: a missing env var must lock the
+  // app, not let a token signed with an empty key through.
+  const s = process.env.AUTH_JWT_SECRET || "";
+  if (s.length < 32) throw new Error("AUTH_JWT_SECRET is not set");
+  return new TextEncoder().encode(s);
 }
 
 async function verify(token) {
