@@ -125,6 +125,58 @@ function wrongAudiencePage() {
   );
 }
 
+// Signed-out check (11 Nov 2026, People Sync). When someone leaves, the ZMG Dashboard's
+// People Sync adds them to the Auth Hub's revoked_sessions list. A pass this app made
+// before that moment must stop working, so a session is checked with the hub
+// (POST /api/session-status) at most every 5 minutes per person. If the hub can't be
+// reached the person is let in (retried in 30 s): an outage must never lock everyone out.
+const SIGNED_OUT_CACHE = new Map();
+async function signedOut(token, payload) {
+  const key = String(payload?.email || "").toLowerCase() + "|" + String(payload?.iat || "");
+  const hit = SIGNED_OUT_CACHE.get(key);
+  if (hit && Date.now() - hit.at < hit.ttl) return hit.out;
+  let out = false;
+  let ttl = 30 * 1000;
+  try {
+    // With REVOCATION_CHECK_KEY the hub is asked by email + issue time (works whatever
+    // secret signed the pass); without it, by the pass itself (hub-signed passes only).
+    const checkKey = process.env.REVOCATION_CHECK_KEY;
+    const r = await fetch(`${process.env.AUTH_HUB_URL}/api/session-status`, {
+      method: "POST",
+      headers: checkKey
+        ? { "Content-Type": "application/json", Authorization: `Bearer ${checkKey}` }
+        : { "Content-Type": "application/json" },
+      body: JSON.stringify(checkKey ? { email: payload?.email, issued_at: payload?.iat } : { token }),
+      signal: AbortSignal.timeout(2500),
+    });
+    if (r.ok) {
+      const j = await r.json();
+      out = j?.reason === "signed_out";
+      ttl = 5 * 60 * 1000;
+    }
+  } catch {
+    // hub unreachable: let them in, ask again soon
+  }
+  if (SIGNED_OUT_CACHE.size > 2000) SIGNED_OUT_CACHE.clear();
+  SIGNED_OUT_CACHE.set(key, { out, at: Date.now(), ttl });
+  return out;
+}
+
+// Signed out: drop this app's cookie and send them back through sign-in (which
+// refuses them). API calls get a 401 instead of a redirect.
+function signedOutResponse(request, url, cookieNames) {
+  const headers = new Headers();
+  for (const name of cookieNames) {
+    headers.append("Set-Cookie", `${name}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`);
+  }
+  if (url.pathname.startsWith("/api/")) {
+    headers.set("Content-Type", "application/json");
+    return new Response(JSON.stringify({ error: "Signed out", code: "signed_out" }), { status: 401, headers });
+  }
+  headers.set("Location", `${process.env.AUTH_HUB_URL}/login?return_to=${encodeURIComponent(request.url)}`);
+  return new Response(null, { status: 302, headers });
+}
+
 export default async function middleware(request) {
   const url = new URL(request.url);
   const exchangeToken = url.searchParams.get("zmg_token");
@@ -155,7 +207,8 @@ export default async function middleware(request) {
   const sessionCookie = readCookie(request, COOKIE_NAME);
   if (sessionCookie) {
     const payload = await verify(sessionCookie);
-    if (payload?.purpose === "session" && passAllowed(payload)) {
+    if (payload?.purpose === "session" && passAllowed(payload)) {
+      if (await signedOut(sessionCookie, payload)) return signedOutResponse(request, url, [COOKIE_NAME]);
       return next();
     }
     if (payload?.purpose === "session" && wrongAudience(payload)) return wrongAudiencePage();
