@@ -39,19 +39,19 @@ test('realtor session: allowed only on mixed apps', async () => {
 test('exchange: staff token keeps role and sf_user_id in the new cookie', async () => {
   const tok = await sign({ email: 's@zmgnow.com', purpose: 'exchange', role: 'employee', sf_user_id: SF });
   const res = await middleware(page(null, `/?zmg_token=${tok}`));
-  assert.equal(res.status, 302);
+  assert.equal(res.status, 200);   // 13 Nov 2026: cookie set on a Signing in page, not a 302
   const cookie = res.headers.get('set-cookie').match(/zmg_session=([^;]+)/)[1];
   const claims = JSON.parse(Buffer.from(cookie.split('.')[1], 'base64url'));
   assert.equal(claims.role, 'employee');
   assert.equal(claims.sf_user_id, SF);
-  assert.doesNotMatch(res.headers.get('location'), /zmg_token/);
+  assert.doesNotMatch(await res.text(), /zmg_token/);
 });
 
 test('exchange: staff token without Salesforce is refused', async () => {
   const tok = await sign({ email: 's@zmgnow.com', purpose: 'exchange', role: 'employee' });
   const res = await middleware(page(null, `/?zmg_token=${tok}`));
   assert.equal(res.status, 302);
-  assert.match(res.headers.get('location'), /auth-hub\.example\/login.*sso=salesforce/);
+  assert.match(res.headers.get('location'), /auth-hub\.example\/api\/salesforce\/start\?return_to=.*zmg_r%3D1/);   // 13 Nov 2026: straight to a fresh Salesforce sign-in, once
   assert.doesNotMatch(res.headers.get('set-cookie') || '', /zmg_session=ey/);
 });
 

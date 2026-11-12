@@ -88,13 +88,78 @@ function redirectWithClearedCookie(location) {
   return new Response(null, { status: 302, headers });
 }
 
+// 12 Nov 2026 (iPhone home-screen apps, Mobile Setup test): a cookie set on a 302 redirect is sometimes
+// not kept before the redirect is followed, so the app forgot the sign-in at once and sent the person
+// back to the Auth Hub, over and over ("too many redirects"). The cookie is now set on a small 200
+// "Signing in…" page that then moves on to the clean address. zmg_x=1 rides along so the next request
+// can tell "cookie kept" from "cookie lost" (see sessionLost below) and never loops.
 function redirectWithSessionCookie(location, sessionToken) {
-  const headers = new Headers({ Location: location });
+  const to = new URL(location);
+  to.searchParams.delete("zmg_r");
+  to.searchParams.set("zmg_x", "1");
+  const href = to.toString();
+  const attr = href.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const js = JSON.stringify(href).replace(/</g, "\u003c");
+  const headers = new Headers({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
   headers.append(
     "Set-Cookie",
     `${COOKIE_NAME}=${sessionToken}; Path=/; Max-Age=${SESSION_MAX_AGE_SECONDS}; HttpOnly; Secure; SameSite=Lax`,
   );
-  return new Response(null, { status: 302, headers });
+  console.log("[gate] signed in, cookie set on a page", to.host);
+  return new Response(
+    `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="1;url=${attr}"><title>Signing in…</title></head>` +
+      `<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#060A14;color:#8fb0cf;font:15px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">Signing in…<script>location.replace(${js})</script></body></html>`,
+    { status: 200, headers },
+  );
+}
+
+// A pass was refused (see the exchange branch). First time: straight to a fresh Salesforce sign-in at the
+// hub, with zmg_r=1 on the way back. Second time (zmg_r=1 already there): a page, never another redirect.
+function cleanAppUrl(url) {
+  const u = new URL(url.toString());
+  for (const k of ["zmg_token", "zmg_x", "zmg_r"]) u.searchParams.delete(k);
+  return u;
+}
+function refusedPass(url, staffPass = false) {
+  const clean = cleanAppUrl(url);
+  // Staff (a staff-only app, or a staff pass anywhere) go straight to a fresh Salesforce sign-in.
+  // Anyone else on an app realtors/clients also use goes to the hub's normal sign-in page instead
+  // (zmg_r=1 tells the hub to drop the remembered sign-in), so their sign-in options stay as before.
+  const staffOnly = (ALLOWED_ROLES.length === 1 && ALLOWED_ROLES[0] === "employee") || staffPass;
+  const sfStart = (back) => staffOnly
+    ? `${process.env.AUTH_HUB_URL}/api/salesforce/start?return_to=${encodeURIComponent(back)}`
+    : `${process.env.AUTH_HUB_URL}/login?return_to=${encodeURIComponent(back)}`;
+  if (url.searchParams.get("zmg_r") !== "1") {
+    const back = new URL(clean.toString());
+    back.searchParams.set("zmg_r", "1");
+    return redirectWithClearedCookie(sfStart(back.toString()));
+  }
+  console.warn("[gate] pass refused twice: showing the sign-in page, not redirecting", url.host);
+  const attr = sfStart(clean.toString()).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const headers = new Headers({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
+  headers.append("Set-Cookie", CLEAR_COOKIE);
+  return new Response(
+    `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Couldn't keep you signed in</title></head>` +
+      `<body style="margin:0;padding:32px 20px;background:#060A14;color:#eaf3ff;font:16px/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">` +
+      `<h1 style="font-size:20px;margin:0 0 10px">Couldn't keep you signed in</h1><p style="color:#8fb0cf;margin:0 0 20px">This app couldn't accept the way this browser is signed in to ZMG. Tap the button below to sign in again. If it happens again, tell Steve which app and phone.</p>` +
+      `<a href="${attr}" style="display:inline-block;min-height:44px;line-height:44px;padding:0 20px;border-radius:22px;background:#0e2f4d;border:1px solid #4fd1ff;color:#eaf3ff;text-decoration:none;font-weight:600">${staffOnly ? "Sign in with Salesforce" : "Sign in again"}</a></body></html>`,
+    { status: 200, headers },
+  );
+}
+
+// The cookie from the page above did not come back: say so plainly instead of going round again.
+function sessionLost(url) {
+  console.warn("[gate] sign-in cookie was not kept by this browser", url.host);
+  const retry = new URL(url.toString());
+  retry.searchParams.delete("zmg_x");
+  const attr = retry.toString().replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  return new Response(
+    `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Couldn't keep you signed in</title></head>` +
+      `<body style="margin:0;padding:32px 20px;background:#060A14;color:#eaf3ff;font:16px/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">` +
+      `<h1 style="font-size:20px;margin:0 0 10px">Couldn't keep you signed in</h1><p style="color:#8fb0cf;margin:0 0 20px">This browser didn't save the sign-in for this app. Tap Try again. If it happens again, tell Steve which app and phone.</p>` +
+      `<a href="${attr}" style="display:inline-block;min-height:44px;line-height:44px;padding:0 20px;border-radius:22px;background:#0e2f4d;border:1px solid #4fd1ff;color:#eaf3ff;text-decoration:none;font-weight:600">Try again</a></body></html>`,
+    { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } },
+  );
 }
 
 // Staff-only apps (and anyone whose old pass said "employee") go straight to
@@ -200,14 +265,24 @@ export default async function middleware(request) {
       return redirectWithSessionCookie(url.toString(), sessionToken);
     }
     if (payload?.purpose === "exchange" && wrongAudience(payload)) return wrongAudiencePage();
-    const cleanReq = new Request(url.toString(), request);
-    return redirectWithClearedCookie(loginUrl(cleanReq, payload?.role === "employee"));
+    // 13 Nov 2026 (iPhone "too many redirects"): the hub handed over a pass this app can't
+    // accept (e.g. the hub remembered the person from an old sign-in that wasn't a Salesforce staff
+    // sign-in). Sending them back to the hub's /login got the same pass again, forever. Now: log why
+    // (no email, no token), go once to a fresh Salesforce sign-in, and if that still doesn't give a
+    // pass we can use, show a page instead of ever redirecting again.
+    console.warn("[gate] pass refused", JSON.stringify({
+      verified: !!payload, purpose: payload?.purpose || null, role: payload?.role || null,
+      sfId: SF_USER_ID.test(String(payload?.sf_user_id || "")),
+    }));
+    return refusedPass(url, payload?.role === "employee");
   }
 
   const sessionCookie = readCookie(request, COOKIE_NAME);
   if (sessionCookie) {
     const payload = await verify(sessionCookie);
-    if (payload?.purpose === "session" && passAllowed(payload)) {
+    if (payload?.purpose === "session" && passAllowed(payload)) {
+      // Cookie kept after the sign-in page: tidy the address (12 Nov 2026).
+      if ((url.searchParams.has("zmg_x") || url.searchParams.has("zmg_r")) && !url.pathname.startsWith("/api/")) { return Response.redirect(cleanAppUrl(url).toString(), 302); }
       if (await signedOut(sessionCookie, payload)) return signedOutResponse(request, url, [COOKIE_NAME]);
       return next();
     }
@@ -215,6 +290,8 @@ export default async function middleware(request) {
     // Old pass (no role, or staff without Salesforce) -- drop it and sign in again.
     return redirectWithClearedCookie(loginUrl(request, !payload?.role || payload?.role === "employee"));
   }
+
+  if (url.searchParams.get("zmg_x") === "1") return sessionLost(url);   // 12 Nov 2026: never loop
 
   return Response.redirect(loginUrl(request, false), 302);
 }
